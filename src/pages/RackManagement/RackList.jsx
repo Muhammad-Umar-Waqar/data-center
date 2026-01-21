@@ -6,17 +6,23 @@ import Swal from "sweetalert2";
 
 import { fetchAllRacks } from "../../slices/rackSlice";
 import { useInstallation } from "../../contexts/InstallationContext";
-
+import DeleteModal from "../../components/Modals/common/DeleteModal";
+import { deleteRack } from "../../slices/rackSlice";
 import "../../styles/pages/management-pages.css";
 import TableSkeleton from "../../components/skeletons/TableSkeleton";
 import CloseIcon from "@mui/icons-material/Close";
 import { Drawer, IconButton, useMediaQuery } from "@mui/material";
+import RackEditModal from "../../components/Modals/Common/RackManagement/RackEditModal";
 
-const RackList = () => {
+const RackList = ({ selectedRack, onRackSelect }) => {
   const dispatch = useDispatch();
   const { selectedDataCenter, selectedHub } = useInstallation();
   const { racks = [], loading = {}, error } = useSelector((state) => state.rack || {});
   const isLoading = loading?.fetch;
+  const [editOpen, setEditOpen] = useState(false);
+  // const [selectedRack, setSelectedRack] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [rackToDelete, setRackToDelete] = useState(null);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -33,11 +39,49 @@ const RackList = () => {
     if (error) console.error("Rack error:", error);
   }, [error]);
 
-  const displayRacks = racks.filter(
-    (r) =>
-      r.dataCenterId?._id === selectedDataCenter?._id &&
-      (!selectedHub?._id || r.hubId?._id === selectedHub._id)
+
+
+const displayRacks = racks.filter((r) => {
+  const rackDataCenterId = r.dataCenter?.id;
+  const rackHubId = r.hub?.id;
+
+  return (
+    rackDataCenterId === selectedDataCenter?._id &&
+    (!selectedHub?._id || rackHubId === selectedHub._id)
   );
+});
+
+
+const handleDeleteRack = async (rackId) => {
+  try {
+    await dispatch(deleteRack(rackId)).unwrap();
+
+    Swal.fire({
+      icon: "success",
+      title: "Deleted",
+      text: "Rack deleted successfully",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    setDeleteOpen(false);
+    setRackToDelete(null);
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Delete Failed",
+      text: err || "Unable to delete rack",
+    });
+  }
+};
+
+const handleRowClick = (rack, e) => {
+  if (e) e.stopPropagation();
+  onRackSelect?.(rack);
+};
+
+
+
 
   const renderListMarkup = () => (
     <div className="ListPage bg-white rounded-xl lg:rounded-r-none lg:rounded-l-xl shadow-sm w-full h-full border border-[#E5E7EB] p-5 relative">
@@ -73,30 +117,79 @@ const RackList = () => {
               {!isLoading &&
                 displayRacks.map((rack, index) => {
                   const id = rack._id ?? rack.id ?? index;
-                  const rackName = `Rack ${rack.row || "?"}-${rack.col || "?"}`;
-                  const hubName = rack.hubId?.name || "N/A";
-                  const sensorCount = rack.sensorIds?.length || 0;
+                  const rackName = `${rack?.name ? rack.name : `Rack ${rack?.row || "?"}-${rack?.col || "?"}`} `;
+                  // const hubName = rack.hubId?.name || "N/A";
+                  const hubName = rack.hub?.name || "N/A";
+                  // const sensorCount = rack.sensorIds?.length || 0;
+                  const sensorCount = rack.sensors?.length || 0;
 
                   return (
+                    // <tr
+                    //   key={id}
+                    //   className="border-b border-gray-200 cursor-pointer transition-colors hover:bg-blue-50/60"
+                    
+                    // >
+
                     <tr
-                      key={id}
-                      className="border-b border-gray-200 cursor-pointer transition-colors hover:bg-blue-50/60"
-                    >
+                        key={id}
+                        onClick={(e) => handleRowClick(rack, e)}
+                        className={`border-b border-gray-200 cursor-pointer transition-colors hover:bg-blue-50/60 ${
+                          selectedRack?._id === id ? "bg-blue-50 border-blue-300" : ""
+                        }`}
+                      >
+
                       <td className="organization-table-cell py-2 sm:py-3 px-2 sm:px-4">{rackName}</td>
                       <td className="organization-table-cell py-2 sm:py-3 px-2 sm:px-4 text-center">{hubName}</td>
                       <td className="organization-table-cell py-2 sm:py-3 px-2 sm:px-4 text-center">{sensorCount}</td>
                       <td className="organization-table-cell py-2 sm:py-3 px-2 sm:px-4 text-center">
                         <div className="flex justify-center gap-2 sm:gap-3">
-                          <button
+                          {/* <button
                             className="organization-action-btn rounded-full border border-green-500/50 bg-white flex items-center justify-center hover:bg-green-50 p-[4px] cursor-not-allowed"
                           >
                             <Pencil className="text-green-600 organization-action-icon" size={16} />
-                          </button>
+                          </button> */}
+
                           <button
+                            className="organization-action-btn rounded-full border border-green-500/50 bg-white flex items-center justify-center hover:bg-green-50 p-[4px]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // setSelectedRack(rack);
+                              onRackSelect?.(rack);
+                              setEditOpen(true);
+                            }}
+                          >
+                            <Pencil className="text-green-600 organization-action-icon" size={16} />
+                          </button>
+
+                          {/* <button
                             className="organization-action-btn rounded-full border border-red-500/50 bg-white flex items-center justify-center hover:bg-red-50 p-[4px] cursor-not-allowed"
                           >
                             <Trash className="text-red-600 organization-action-icon" size={16} />
-                          </button>
+                          </button> */}
+
+              <button
+                className="organization-action-btn rounded-full border border-red-500/50 bg-white flex items-center justify-center hover:bg-red-50 p-[4px]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setRackToDelete(rack);
+                  setDeleteOpen(true);
+                }}
+              >
+                <Trash className="text-red-600 organization-action-icon" size={16} />
+              </button>
+
+
+
+                          {/* <button
+                            className="organization-action-btn rounded-full border border-red-500/50 bg-white flex items-center justify-center hover:bg-red-50 p-[4px]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteRack(rack);
+                            }}
+                          >
+                            <Trash className="text-red-600 organization-action-icon" size={16} />
+                          </button> */}
+
                         </div>
                       </td>
                     </tr>
@@ -114,9 +207,38 @@ const RackList = () => {
           </table>
         </div>
       </div>
-    </div>
-  );
 
+
+ <RackEditModal
+  open={editOpen}
+  handleClose={() => {
+    setEditOpen(false);
+    setSelectedRack(null);
+  }}
+  rack={selectedRack}
+/>
+
+
+<DeleteModal
+  open={deleteOpen}
+  handleClose={() => {
+    setDeleteOpen(false);
+    setRackToDelete(null);
+  }}
+  handleDelete={handleDeleteRack}
+  itemId={rackToDelete?._id}
+  itemName={rackToDelete?.name}
+  itemLabel="Rack"
+/>
+
+
+
+    </div>
+ 
+
+);
+
+ 
   return (
     <>
       {isDesktop ? (

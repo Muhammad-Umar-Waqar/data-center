@@ -144,6 +144,67 @@ export const deleteRack = createAsyncThunk(
   }
 );
 
+// fetch racks by cluster id
+export const fetchRacksByClusterId = createAsyncThunk(
+  "racks/fetchByClusterId",
+  async (clusterId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return rejectWithValue("No authentication token found");
+
+      const res = await fetch(`${BASE}/rack/by-cluster/${clusterId}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok)
+        return rejectWithValue(
+          data.message || "Failed to fetch racks by cluster"
+        );
+
+      return data.racks || [];
+    } catch (err) {
+      return rejectWithValue(err.message || "Network error");
+    }
+  }
+);
+
+// fetch racks by data center id
+export const fetchRacksByDataCenterId = createAsyncThunk(
+  "racks/fetchByDataCenterId",
+  async (dataCenterId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return rejectWithValue("No authentication token found");
+
+      const res = await fetch(`${BASE}/rack/by-datacenter/${dataCenterId}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok)
+        return rejectWithValue(
+          data.message || "Failed to fetch racks by data center"
+        );
+
+      return data.racks || [];
+    } catch (err) {
+      return rejectWithValue(err.message || "Network error");
+    }
+  }
+);
+
+
 /* ------------------------------------ */
 /*               Slice                  */
 /* ------------------------------------ */
@@ -250,7 +311,40 @@ const rackSlice = createSlice({
       .addCase(deleteRack.rejected, (state, action) => {
         state.loading.delete = false;
         state.error.delete = action.payload || action.error?.message || "Failed to delete rack";
-      });
+      })
+      // fetch by cluster
+    .addCase(fetchRacksByClusterId.pending, (state) => {
+      state.loading.fetch = true;
+      state.error.fetch = null;
+    })
+    .addCase(fetchRacksByClusterId.fulfilled, (state, action) => {
+      state.loading.fetch = false;
+      state.racks = Array.isArray(action.payload) ? action.payload : [];
+    })
+    .addCase(fetchRacksByClusterId.rejected, (state, action) => {
+      state.loading.fetch = false;
+      state.error.fetch =
+        action.payload || action.error?.message || "Failed to fetch racks by cluster";
+    })
+
+    // fetch by data center
+    .addCase(fetchRacksByDataCenterId.pending, (state) => {
+      state.loading.fetch = true;
+      state.error.fetch = null;
+    })
+    .addCase(fetchRacksByDataCenterId.fulfilled, (state, action) => {
+      state.loading.fetch = false;
+      state.racks = Array.isArray(action.payload) ? action.payload : [];
+    })
+    .addCase(fetchRacksByDataCenterId.rejected, (state, action) => {
+      state.loading.fetch = false;
+      state.error.fetch =
+        action.payload ||
+        action.error?.message ||
+        "Failed to fetch racks by data center";
+    });
+
+      
   },
 });
 

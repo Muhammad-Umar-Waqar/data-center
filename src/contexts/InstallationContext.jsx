@@ -5,6 +5,10 @@ const InstallationContext = createContext();
 export const InstallationProvider = ({ children }) => {
   const [selectedDataCenter, setSelectedDataCenter] = useState(null);
   const [selectedHub, setSelectedHub] = useState(null);
+  const [selectedRack, setSelectedRack] = useState(null);
+  const [selectedAcKit, setSelectedAcKit] = useState(null);
+
+  console.log(selectedDataCenter," + " , selectedHub," + ", selectedRack ," + ",selectedAcKit)
 
   return (
     <InstallationContext.Provider
@@ -13,6 +17,10 @@ export const InstallationProvider = ({ children }) => {
         setSelectedDataCenter,
         selectedHub,
         setSelectedHub,
+        selectedRack,
+        setSelectedRack,
+        selectedAcKit,
+        setSelectedAcKit,
       }}
     >
       {children}

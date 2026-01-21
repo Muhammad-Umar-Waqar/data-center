@@ -10,6 +10,11 @@ import VenueReducer from "../slices/VenueSlice";
 import alertsReducer from '../slices/alertsSlice';
 import UserReducer from '../slices/UserSlice';
 import hubReducer from '../slices/hubSlice';
+import rackReducer from '../slices/rackSlice'
+import acKitReducer from '../slices/ackitSlice'
+import rackClusterReducer from '../slices/rackClusterSlice'
+
+
 const persistConfig = {
   key: "root",
   storage,
@@ -23,7 +28,10 @@ const rootReducer = combineReducers({
   Manager: ManagerReducer,
   Venue: VenueReducer,
   alerts: alertsReducer,
-  hub: hubReducer
+  hub: hubReducer,
+  rack: rackReducer,
+  ackit: acKitReducer,
+  rackCluster: rackClusterReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
