@@ -38,11 +38,6 @@ html, body {
 }
 
 
-/* body {
-  @apply font-sans;
-} */
-
-
 /* make SweetAlert appear above MUI Drawer/Modal (MUI drawer z-index ~1200) */
 .swal2-container,
 .my-swal-container {

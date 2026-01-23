@@ -35,8 +35,8 @@ export default function DashboardRightPanel({
           apiKey={selected?.apiKey}
           chartData={selected?.chartData ?? []}
           organizationId={selectedOrgId}
-          closeIcon={closeIcon}   // forward
-          onClose={onClose}       // forward
+          closeIcon={closeIcon}   
+          onClose={onClose}       
           deviceId={selected?.deviceId}
           batteryLow={selected?.batteryAlert ?? false}
           temperatureAlert={selected?.refrigeratorAlert}
