@@ -393,8 +393,8 @@ export default function AddAckit({ onNext, onBack }) {
   // };
 
   return (
-    <div className="AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-between bg-[#EEF3F9] border border-[#E5E7EB]">
-      <div>
+    <div className="h-full AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-between bg-[#EEF3F9] border border-[#E5E7EB]">
+      <div className="flex-1 flex flex-col justify-center">
         <h2 className="data-center-add-title font-semibold mb-1 text-center">Add AC Kit</h2>
         <p className="data-center-add-subtitle text-gray-500 mb-6 text-center">
           Create a new AC Kit (temperature-based action)
@@ -442,7 +442,7 @@ export default function AddAckit({ onNext, onBack }) {
       </div>
 
       {/* Footer: Back / Save & Next (or Next) */}
-      <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center px-5">
+      {/* <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center px-5">
         <button
           onClick={() => onBack?.()}
           className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
@@ -463,7 +463,38 @@ export default function AddAckit({ onNext, onBack }) {
             ? "Save & Next → Rack Cluster"
             : "Next → Rack Cluster"}
         </button>
-      </div>
+      </div> */}
+
+         <div className="my-5 px-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+  <button
+    type="button"
+    onClick={() => onBack?.()}
+    className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+  >
+    ← Back
+  </button>
+
+  <button
+    type="button"
+    onClick={handleSaveAndNext}
+    disabled={!canProceed || submitting || loading?.submit}
+    className={`px-6 py-2 rounded-md text-white font-semibold ${
+      canProceed && !submitting
+        ? "bg-[#1E64D9] hover:bg-[#1557C7]"
+        : "bg-gray-400 cursor-not-allowed"
+    }`}
+  >
+    {submitting || loading?.submit
+      ? "Saving..."
+      : hasFormValue
+      ? "Save & Next → Rack Cluster"
+      : "Next → Rack Cluster"}
+      
+  </button>
+</div>
+
+
+
     </div>
   );
 }

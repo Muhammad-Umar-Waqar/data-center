@@ -161,11 +161,11 @@ import "../../styles/pages/management-pages.css";
 import TableSkeleton from "../../components/skeletons/TableSkeleton";
 import CloseIcon from "@mui/icons-material/Close";
 import { Drawer, IconButton, useMediaQuery } from "@mui/material";
-
+import { useInstallation } from "../../contexts/InstallationContext";
 import ManagementListShell from "../../components/Modals/Common/ManagementListShell";
 import ActionButtons from "../../components/Modals/Common/ActionButtons";
 
-export default function AckitList({ selectedAcKit, onAckitSelect }) {
+export default function AckitList() {
   const dispatch = useDispatch();
   const { ackits = [], loading = {}, error } = useSelector((s) => s.ackit || {});
   const isLoading = loading?.fetch;
@@ -178,6 +178,8 @@ export default function AckitList({ selectedAcKit, onAckitSelect }) {
 
   const isDesktop = useMediaQuery("(min-width:768px)");
   const isMobile = !isDesktop;
+
+  const { selectedAcKit, setSelectedAcKit } = useInstallation();
 
   useEffect(() => {
     dispatch(fetchAllAckits());
@@ -204,11 +206,18 @@ export default function AckitList({ selectedAcKit, onAckitSelect }) {
     }
   };
 
+  // const handleRowClick = (ackit, e) => {
+  //   e?.stopPropagation();
+  //   onAckitSelect?.(ackit);
+  //   if (isMobile) setDrawerOpen(false);
+  // };
+
   const handleRowClick = (ackit, e) => {
-    e?.stopPropagation();
-    onAckitSelect?.(ackit);
-    if (isMobile) setDrawerOpen(false);
-  };
+  e?.stopPropagation();
+  setSelectedAcKit(ackit);   // 🔥 THIS WAS MISSING
+  if (isMobile) setDrawerOpen(false);
+};
+
 
   const renderListMarkup = () => (
     <div className="relative min-h-0">

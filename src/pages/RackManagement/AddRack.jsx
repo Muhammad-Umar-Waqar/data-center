@@ -893,7 +893,7 @@ const AddRack = ({ disabled = false, onNext, onBack }) => {
 
   return (
     <div className="h-full p-5 AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-between bg-[#EEF3F9] border border-[#E5E7EB]">
-      <div>
+      <div className="flex-1 flex flex-col justify-center">
         <h2 className="data-center-add-title font-semibold mb-1 text-center">Add Rack</h2>
 
         <p className="data-center-add-subtitle text-gray-500 mb-6 text-center">

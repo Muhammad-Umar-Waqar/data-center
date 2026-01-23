@@ -12,7 +12,7 @@ import React from "react";
  */
 const ManagementListShell = ({ columns, children, className = "" }) => {
   return (
-    <div className={`bg-white rounded-xl w-full flex flex-col min-h-0 border border-[#E5E7EB] ${className}`}>
+    <div className={`bg-white w-full flex flex-col min-h-0 border border-[#E5E7EB] ${className}`}>
       {/* Header (sticky) */}
       <div className="overflow-x-auto">
         <table className="w-full table-fixed text-left">

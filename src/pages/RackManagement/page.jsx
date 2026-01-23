@@ -61,9 +61,17 @@ const RackManagement = ({ onNext, onBack }) => {
     setSelectedRack(rack); // installation selection
   };
 
-  const handleOutsideClick = () => {
-    setSelectedRack(null);
-  };
+  // const handleOutsideClick = () => {
+  //   setSelectedRack(null);
+  // };
+
+
+  const handleOutsideClick = (e) => {
+  // do not clear selection when clicking inside children
+  if (e && e.target !== e.currentTarget) return;
+  setSelectedRack(null);
+};
+
 
   return (
     <div

@@ -264,7 +264,8 @@ import "../../styles/pages/management-pages.css";
 
 export default function AddHub({ onNext, onBack, disabled = false }) {
   const dispatch = useDispatch();
-  const { selectedDataCenter, selectedHub, setSelectedHub } = useInstallation();
+  const { selectedDataCenter, selectedHub, setSelectedHub } = useInstallation()
+  ;
   const { loading } = useSelector((state) => state.hub);
 
   const [formData, setFormData] = useState({
@@ -396,77 +397,166 @@ export default function AddHub({ onNext, onBack, disabled = false }) {
     }
   };
 
+  // return (
+  //   <div className="p-5 h-full AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-center bg-[#EEF3F9] border border-[#E5E7EB]">
+  //     <div>
+  //       <h2 className="data-center-add-title font-semibold mb-1 text-center">Add Hub</h2>
+
+  //       <p className="data-center-add-subtitle text-gray-500 mb-6 text-center">
+  //         {selectedDataCenter ? `Adding Hub to "${selectedDataCenter.name}"` : "Select a Data Center to add a Hub"}
+  //       </p>
+
+  //       <div className="data-center-add-form space-y-4 max-w-sm mx-auto w-full">
+  //         <InputField
+  //           id="hub_name"
+  //           name="hub_name"
+  //           label="Hub Name"
+  //           type="text"
+  //           value={formData.hub_name}
+  //           onchange={onchange}
+  //           placeholder="Hub Name"
+  //           icon={<Cpu size={20} />}
+  //           disabled={disabled || !selectedDataCenter}
+  //         />
+
+  //         <InputField
+  //           id="sensorQuantity"
+  //           name="sensorQuantity"
+  //           label="Sensor Quantity (Optional)"
+  //           type="number"
+  //           value={formData.sensorQuantity}
+  //           onchange={onchange}
+  //           placeholder="1 – 15"
+  //           icon={<Hash size={20} />}
+  //           disabled={disabled || !selectedDataCenter}
+  //           min={1}
+  //           max={15}
+  //         />
+
+  //         {/* Keep Save behavior for users who prefer saving without moving forward */}
+  //         <button
+  //           type="button"
+  //           onClick={handleSubmit}
+  //           disabled={!selectedDataCenter || loadingFormSubmit || loading?.submit}
+  //           className={`w-full bg-[#1E64D9] hover:bg-[#1557C7] text-white font-semibold py-2.5 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
+  //             !selectedDataCenter || loadingFormSubmit ? "opacity-70 cursor-not-allowed" : ""
+  //           }`}
+  //         >
+  //           {loadingFormSubmit ? "Saving..." : "Save"}
+  //         </button>
+  //       </div>
+  //     </div>
+
+  //     {/* Footer: Back + Save & Next */}
+  //     <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center">
+  //       <button
+  //         type="button"
+  //         onClick={() => onBack?.()}
+  //         className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+  //       >
+  //         ← Back
+  //       </button>
+
+  //       <button
+  //         type="button"
+  //         onClick={handleSaveAndNext}
+  //         disabled={!canProceed || loadingFormSubmit}
+  //         className={`px-6 py-2 rounded-md text-white font-semibold ${
+  //           canProceed && !loadingFormSubmit ? "bg-[#1E64D9] hover:bg-[#1557C7]" : "bg-gray-400 cursor-not-allowed"
+  //         }`}
+  //       >
+  //         {loadingFormSubmit ? "Saving..." : hasFormValue ? "Save & Next → Racks" : "Next → Racks"}
+  //       </button>
+  //     </div>
+  //   </div>
+  // );
+
   return (
-    <div className="p-5 h-full AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-center bg-[#EEF3F9] border border-[#E5E7EB]">
-      <div>
-        <h2 className="data-center-add-title font-semibold mb-1 text-center">Add Hub</h2>
+  <div className="h-full p-5 AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col bg-[#EEF3F9] border border-[#E5E7EB]">
 
-        <p className="data-center-add-subtitle text-gray-500 mb-6 text-center">
-          {selectedDataCenter ? `Adding Hub to "${selectedDataCenter.name}"` : "Select a Data Center to add a Hub"}
-        </p>
+    {/* ===== MAIN CONTENT (CENTERED) ===== */}
+    <div className="flex-1 flex flex-col justify-center">
+      <h2 className="data-center-add-title font-semibold mb-1 text-center">
+        Add Hub
+      </h2>
 
-        <div className="data-center-add-form space-y-4 max-w-sm mx-auto w-full">
-          <InputField
-            id="hub_name"
-            name="hub_name"
-            label="Hub Name"
-            type="text"
-            value={formData.hub_name}
-            onchange={onchange}
-            placeholder="Hub Name"
-            icon={<Cpu size={20} />}
-            disabled={disabled || !selectedDataCenter}
-          />
+      <p className="data-center-add-subtitle text-gray-500 mb-6 text-center">
+        {selectedDataCenter
+          ? `Adding Hub to "${selectedDataCenter.name}"`
+          : "Select a Data Center to add a Hub"}
+      </p>
 
-          <InputField
-            id="sensorQuantity"
-            name="sensorQuantity"
-            label="Sensor Quantity (Optional)"
-            type="number"
-            value={formData.sensorQuantity}
-            onchange={onchange}
-            placeholder="1 – 15"
-            icon={<Hash size={20} />}
-            disabled={disabled || !selectedDataCenter}
-            min={1}
-            max={15}
-          />
+      <div className="data-center-add-form space-y-4 max-w-sm mx-auto w-full">
+        <InputField
+          id="hub_name"
+          name="hub_name"
+          label="Hub Name"
+          type="text"
+          value={formData.hub_name}
+          onchange={onchange}
+          placeholder="Hub Name"
+          icon={<Cpu size={20} />}
+          disabled={disabled || !selectedDataCenter}
+        />
 
-          {/* Keep Save behavior for users who prefer saving without moving forward */}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!selectedDataCenter || loadingFormSubmit || loading?.submit}
-            className={`w-full bg-[#1E64D9] hover:bg-[#1557C7] text-white font-semibold py-2.5 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
-              !selectedDataCenter || loadingFormSubmit ? "opacity-70 cursor-not-allowed" : ""
-            }`}
-          >
-            {loadingFormSubmit ? "Saving..." : "Save"}
-          </button>
-        </div>
-      </div>
+        <InputField
+          id="sensorQuantity"
+          name="sensorQuantity"
+          label="Sensor Quantity (Optional)"
+          type="number"
+          value={formData.sensorQuantity}
+          onchange={onchange}
+          placeholder="1 – 15"
+          icon={<Hash size={20} />}
+          disabled={disabled || !selectedDataCenter}
+          min={1}
+          max={15}
+        />
 
-      {/* Footer: Back + Save & Next */}
-      <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center">
+        {/* Optional Save-only button */}
         <button
           type="button"
-          onClick={() => onBack?.()}
-          className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-        >
-          ← Back
-        </button>
-
-        <button
-          type="button"
-          onClick={handleSaveAndNext}
-          disabled={!canProceed || loadingFormSubmit}
-          className={`px-6 py-2 rounded-md text-white font-semibold ${
-            canProceed && !loadingFormSubmit ? "bg-[#1E64D9] hover:bg-[#1557C7]" : "bg-gray-400 cursor-not-allowed"
+          onClick={handleSubmit}
+          disabled={!selectedDataCenter || loadingFormSubmit || loading?.submit}
+          className={`w-full bg-[#1E64D9] hover:bg-[#1557C7] text-white font-semibold py-2.5 px-4 rounded-md ${
+            !selectedDataCenter || loadingFormSubmit
+              ? "opacity-70 cursor-not-allowed"
+              : ""
           }`}
         >
-          {loadingFormSubmit ? "Saving..." : hasFormValue ? "Save & Next → Racks" : "Next → Racks"}
+          {loadingFormSubmit ? "Saving..." : "Save"}
         </button>
       </div>
     </div>
-  );
+
+    {/* ===== FOOTER (STICKS TO BOTTOM) ===== */}
+    <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center">
+      <button
+        type="button"
+        onClick={() => onBack?.()}
+        className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+      >
+        ← Back
+      </button>
+
+      <button
+        type="button"
+        onClick={handleSaveAndNext}
+        disabled={!canProceed || loadingFormSubmit}
+        className={`px-6 py-2 rounded-md text-white font-semibold ${
+          canProceed && !loadingFormSubmit
+            ? "bg-[#1E64D9] hover:bg-[#1557C7]"
+            : "bg-gray-400 cursor-not-allowed"
+        }`}
+      >
+        {loadingFormSubmit
+          ? "Saving..."
+          : hasFormValue
+          ? "Save & Next → Racks"
+          : "Next → Racks"}
+      </button>
+    </div>
+  </div>
+);
+
 }

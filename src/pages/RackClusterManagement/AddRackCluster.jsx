@@ -587,8 +587,9 @@
 //   };
 
 //   return (
-//     <div className="p-5 AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-between bg-[#EEF3F9] border border-[#E5E7EB]">
-//       <div>
+//     <div className="h-full p-5 AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-between bg-[#EEF3F9] border border-[#E5E7EB]">
+//       {/* <div className=""> */}
+//             <div className="flex-1 flex flex-col justify-center">
 //         <h2 className="data-center-add-title font-semibold mb-1 text-center">Add Rack Cluster</h2>
 //         <p className="data-center-add-subtitle text-gray-500 mb-6 text-center">Group racks under an Ackit</p>
 
@@ -646,6 +647,9 @@
 // };
 
 // export default AddRackCluster;
+
+
+
 
 
 // Fixing the API for acKit Id previously we are using Ackit Name
@@ -708,14 +712,20 @@ const AddRackCluster = ({ onBack, onFinish }) => {
   // Can finish if:
   // 1. User selected from list
   // 2. OR valid form filled
-  const canFinish = Boolean(
-    selectedRackCluster ||
-      (clusterName.trim() && ackitId && selectedRacks.length > 0)
-  );
+  // const canFinish = Boolean(
+  //   selectedRackCluster ||
+  //     (clusterName.trim() && ackitId && selectedRacks.length > 0)
+  // );
+
+
+  const canFinish =
+  clusterName.trim() && ackitId && selectedRacks.length > 0;
+
+
 
   const handleCreateAndFinish = async () => {
     // ✅ CASE 1: User selected from list → just finish
-    if (selectedRackCluster && !hasFormValue) {
+    if (!hasFormValue) {
       onFinish?.();
       return;
     }
@@ -757,10 +767,9 @@ const AddRackCluster = ({ onBack, onFinish }) => {
 
       const created = await dispatch(createRackCluster(payload)).unwrap();
 
-      Swal.fire("Success", "Rack Cluster created successfully", "success");
-
+      
       setSelectedRackCluster(created);
-
+      
       // Reset form
       setClusterName("");
       setAckitId("");
@@ -768,7 +777,39 @@ const AddRackCluster = ({ onBack, onFinish }) => {
 
       dispatch(fetchRackClustersByDataCenter(selectedDataCenter._id));
 
-      onFinish?.();
+      //   await Swal.fire({
+      //   icon: "success",
+      //   title: "🎉 Installation Complete!",
+      //   text: "Your rack cluster has been set up successfully.",
+      //   confirmButtonText: "Finish",
+      //   allowOutsideClick: false,
+      // });
+      
+
+      // onFinish?.();
+
+
+        // New: give user choice to stay or go to Step 1
+  const result = await Swal.fire({
+    icon: "success",
+    title: "🎉 Installation Complete!",
+    text: "Your rack cluster has been set up successfully.",
+    showDenyButton: true,
+    confirmButtonText: "Stay on this page",
+    denyButtonText: "Go to Step 1",
+    allowOutsideClick: false,
+  });
+
+  // mark step completed always (parent will update completedIndex)
+  if (result.isDenied) {
+    // user wants to go to Step 1
+    onFinish?.({ gotoStep: 0 });
+  } else {
+    // user stays — just mark completed
+    onFinish?.(); // parent will set completedIndex and keep activeStep unchanged
+  }
+
+
     } catch (err) {
       Swal.fire("Error", err || "Failed to create Rack Cluster", "error");
     } finally {
@@ -777,8 +818,8 @@ const AddRackCluster = ({ onBack, onFinish }) => {
   };
 
   return (
-    <div className="p-5 AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-between bg-[#EEF3F9] border border-[#E5E7EB]">
-      <div>
+    <div className="h-full p-5 AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-between bg-[#EEF3F9] border border-[#E5E7EB]">
+           <div className="flex-1 flex flex-col justify-center">
         <h2 className="data-center-add-title text-center font-semibold">
           Add Rack Cluster
         </h2>

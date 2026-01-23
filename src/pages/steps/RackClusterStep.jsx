@@ -80,11 +80,11 @@ import ManagementSplitLayout from "../../components/Modals/Common/ManagementSpli
 import AddRackCluster from "../RackClusterManagement/AddRackCluster";
 import RackClusterList from "../RackClusterManagement/RackClusterList";
 
-const RackClusterStep = ({ onBack, onFinish }) => {
+const RackClusterStep = ({ onBack, onNext,  onFinish }) => {
   return (
     <ManagementSplitLayout
   ListComponent={<RackClusterList />}
-  FormComponent={<AddRackCluster onNext={onNext} onBack={onBack} />}
+  FormComponent={<AddRackCluster onNext={onNext} onBack={onBack} onFinish={onFinish}  />}
 />
   );
 };

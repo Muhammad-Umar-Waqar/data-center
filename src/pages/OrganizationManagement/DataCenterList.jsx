@@ -1475,7 +1475,7 @@ const DataCenterList = () => {
         columns={
           <>
             <th className="py-2 px-4 font-bold text-gray-800">Data Center Name</th>
-            <th className="py-2 px-4 w-[120px] text-center">Actions</th>
+            <th className="py-2 px-4  text-center">Actions</th>
           </>
         }
       >
