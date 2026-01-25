@@ -800,7 +800,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
-import { fetchAllRacks, deleteRack } from "../../slices/rackSlice";
+import { fetchAllRacks, deleteRack, fetchRacksByDataCenterId } from "../../slices/rackSlice";
 import { useInstallation } from "../../contexts/InstallationContext";
 import DeleteModal from "../../components/Modals/common/DeleteModal";
 import RackEditModal from "../../components/Modals/Common/RackManagement/RackEditModal";
@@ -841,7 +841,8 @@ const selectedRack = propSelectedRack ?? ctxSelectedRack;
 
   useEffect(() => {
     if (selectedDataCenter?._id) {
-      dispatch(fetchAllRacks());
+      // dispatch(fetchAllRacks());
+      dispatch(fetchRacksByDataCenterId(selectedDataCenter._id));
     }
   }, [selectedDataCenter, dispatch]);
 
@@ -850,16 +851,20 @@ const selectedRack = propSelectedRack ?? ctxSelectedRack;
   }, [error]);
 
   // filter racks to current selection (data center + optional hub)
-  const displayRacks = Array.isArray(racks)
-    ? racks.filter((r) => {
-        const rackDataCenterId = r.dataCenter?.id ?? r.dataCenter?._id ?? r.dataCenterId;
-        const rackHubId = r.hub?.id ?? r.hub?._id ?? r.hubId;
-        return (
-          rackDataCenterId === selectedDataCenter?._id &&
-          (!selectedHub?._id || rackHubId === selectedHub._id)
-        );
-      })
-    : [];
+  // const displayRacks = Array.isArray(racks)
+  //   ? racks.filter((r) => {
+  //       const rackDataCenterId = r.dataCenter?.id ?? r.dataCenter?._id ?? r.dataCenterId;
+  //       const rackHubId = r.hub?.id ?? r.hub?._id ?? r.hubId;
+  //       return (
+  //         rackDataCenterId === selectedDataCenter?._id &&
+  //         (!selectedHub?._id || rackHubId === selectedHub._id)
+  //       );
+  //     })
+  //   : [];
+
+
+  const displayRacks = Array.isArray(racks) ? racks : [];
+
 
   const handleDeleteRack = async (rackId) => {
     try {
@@ -877,7 +882,7 @@ const selectedRack = propSelectedRack ?? ctxSelectedRack;
       setRackToDelete(null);
 
       // refresh
-      if (selectedDataCenter?._id) dispatch(fetchAllRacks());
+      if (selectedDataCenter?._id) dispatch(fetchRacksByDataCenterId(selectedDataCenter._id));
     } catch (err) {
       Swal.fire({
         icon: "error",

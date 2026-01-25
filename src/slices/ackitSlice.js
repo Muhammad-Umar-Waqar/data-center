@@ -136,6 +136,33 @@ export const deleteAckit = createAsyncThunk(
   }
 );
 
+
+export const fetchAckitsByDataCenter = createAsyncThunk(
+  "ackit/fetchByDataCenter",
+  async (dataCenterId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return rejectWithValue("No authentication token found");
+
+      const res = await fetch(`${BASE}/ackit/datacenter/${dataCenterId}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok) return rejectWithValue(data.message || "Failed to fetch ackits");
+
+      return data.data ?? data.ackits ?? [];
+    } catch (err) {
+      return rejectWithValue(err.message || "Network error");
+    }
+  }
+);
+
 /* Slice */
 const ackitSlice = createSlice({
   name: "ackit",
@@ -233,7 +260,22 @@ const ackitSlice = createSlice({
       .addCase(deleteAckit.rejected, (s, a) => {
         s.loading.delete = false;
         s.error.delete = a.payload || a.error?.message || "Failed to delete ackit";
-      });
+      })
+      .addCase(fetchAckitsByDataCenter.pending, (s) => {
+        s.loading.fetch = true;
+        s.error.fetch = null;
+      })
+      .addCase(fetchAckitsByDataCenter.fulfilled, (s, a) => {
+        s.loading.fetch = false;
+        s.ackits = Array.isArray(a.payload) ? a.payload : [];
+      })
+      .addCase(fetchAckitsByDataCenter.rejected, (s, a) => {
+        s.loading.fetch = false;
+        s.error.fetch =
+          a.payload || a.error?.message || "Failed to fetch ackits by data center";
+        s.ackits = [];
+      })
+
   },
 });
 

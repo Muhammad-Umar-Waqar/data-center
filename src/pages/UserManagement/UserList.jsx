@@ -1165,7 +1165,7 @@ const UserList = ({ onUserSelect, selectedUser }) => {
 
     // Admin: fetch all users (or you may want only managers; adjust as needed)
     if (currentUser.role === "admin") {
-      dispatch(fetchAllUsers());
+      dispatch(fetchUsersByCreator(currentUser._id));
     } else {
       // manager -> fetch users created by this manager
       dispatch(fetchUsersByCreator(currentUser._id));
@@ -1192,8 +1192,9 @@ const UserList = ({ onUserSelect, selectedUser }) => {
       });
       handleDeleteClose();
       // refresh list
-      if (currentUser?.role === "admin") dispatch(fetchAllUsers());
-      else dispatch(fetchUsersByCreator(currentUser._id));
+      // if (currentUser?.role === "admin") dispatch(fetchUsersByCreator(currentUser._id));
+      // else dispatch(fetchUsersByCreator(currentUser._id));
+      dispatch(fetchUsersByCreator(currentUser._id));
     } catch (err) {
       Swal.fire({
         icon: "error",
@@ -1229,8 +1230,9 @@ const UserList = ({ onUserSelect, selectedUser }) => {
         text: `${selectedUserForSuspend.email || selectedUserForSuspend.name} is suspended.`,
       });
       // refresh lists
-      if (currentUser?.role === "admin") dispatch(fetchAllUsers());
-      else dispatch(fetchUsersByCreator(currentUser._id));
+      // if (currentUser?.role === "admin") dispatch(fetchAllUsers());
+      dispatch(fetchUsersByCreator(currentUser._id));
+      // else dispatch(fetchUsersByCreator(currentUser._id));
     } catch (err) {
       Swal.fire({
         icon: "error",
@@ -1265,8 +1267,7 @@ const UserList = ({ onUserSelect, selectedUser }) => {
         await dispatch(updateUserStatus({ id: user._id, isActive: true, suspensionReason: "" })).unwrap();
         if (isMobile) setDrawerOpen(false);
         Swal.fire({ icon: "success", title: "Activated", text: `${user.email || user.name} is now active.` });
-        if (currentUser?.role === "admin") dispatch(fetchAllUsers());
-        else dispatch(fetchUsersByCreator(currentUser._id));
+        dispatch(fetchUsersByCreator(currentUser._id));
       } catch (err) {
         console.error("updateUserStatus error:", err);
         Swal.fire({ icon: "error", title: "Failed", text: err || "Could not activate user" });
@@ -1422,8 +1423,8 @@ const handleEditOpen = (user) => {
         // id={editId}
         onSaved={() => {
           // refresh after successful edit (modal calls will have performed server-side updates)
-          if (currentUser?.role === "admin") dispatch(fetchAllUsers());
-          else dispatch(fetchUsersByCreator(currentUser._id));
+        
+          dispatch(fetchUsersByCreator(currentUser._id));
           handleEditClose();
         }}
       />

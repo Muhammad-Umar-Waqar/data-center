@@ -713,9 +713,353 @@
 
 
 
-// Fixing UI and Next/Back Procedure
 
-// src/pages/RackManagement/AddRack.jsx
+
+
+
+
+// // Fixing UI and Next/Back Procedure
+
+// // src/pages/RackManagement/AddRack.jsx
+// import { Cpu } from "lucide-react";
+// import { useState, useEffect } from "react";
+// import { useDispatch, useSelector } from "react-redux";
+// import Swal from "sweetalert2";
+
+// import { Autocomplete, TextField } from "@mui/material";
+
+// import InputField from "../../components/Inputs/InputField";
+// import { createRack, fetchAllRacks, fetchRacksByDataCenterId } from "../../slices/rackSlice";
+// import { fetchHubsByDataCenter } from "../../slices/hubSlice";
+// import { useInstallation } from "../../contexts/InstallationContext";
+
+// import "../../styles/pages/management-pages.css";
+
+// const AddRack = ({ disabled = false, onNext, onBack }) => {
+//   const dispatch = useDispatch();
+//   const { selectedDataCenter, selectedHub, setSelectedHub, selectedRack, setSelectedRack } = useInstallation();
+
+//   const { loading = {} } = useSelector((state) => state.rack || {});
+//   const { hubs = [] } = useSelector((state) => state.hub || {});
+
+//   const DEFAULT_CONDITIONS = [
+//     { type: "temp", operator: ">", value: 0 },
+//     { type: "humidity", operator: ">", value: 0 },
+//   ];
+
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     hubId: "",
+//     sensorIds: [],
+//     row: "",
+//     col: "",
+//     conditions: DEFAULT_CONDITIONS,
+//   });
+
+//   const [loadingFormSubmit, setLoadingFormSubmit] = useState(false);
+
+//   useEffect(() => {
+//     if (selectedDataCenter?._id) {
+//       dispatch(fetchHubsByDataCenter(selectedDataCenter._id));
+//     }
+//   }, [selectedDataCenter, dispatch]);
+
+//   // helper for inputs
+//   const onchange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData((p) => ({ ...p, [name]: value }));
+//   };
+
+//   const addCondition = () => {
+//     setFormData((p) => ({
+//       ...p,
+//       conditions: [...p.conditions, { type: "temp", operator: ">", value: 0 }],
+//     }));
+//   };
+
+//   const updateCondition = (index, field, value) => {
+//     const newConditions = [...formData.conditions];
+//     newConditions[index][field] = field === "value" ? Number(value) : value;
+//     setFormData((p) => ({ ...p, conditions: newConditions }));
+//   };
+
+//   // When user selects a hub from the Autocomplete we also update the installation selectedHub
+//   const onHubChange = (_, value) => {
+//     setFormData((p) => ({ ...p, hubId: value?._id || "" , sensorIds: [] }));
+//     // keep installation-wide selectedHub in sync so sensors list loads
+//     if (value) setSelectedHub(value);
+//   };
+
+//   // required check: If user has typed any of the required inputs we consider the form "active"
+//   const hasFormValue = Boolean(
+//     (formData.name || "").trim() ||
+//       formData.hubId ||
+//       formData.row ||
+//       formData.col ||
+//       (formData.sensorIds && formData.sensorIds.length > 0)
+//   );
+
+//   // canProceed = either installation selected rack exists OR form has all required fields
+//   const formValid =
+//     (formData.name || "").trim() &&
+//     formData.hubId &&
+//     formData.row &&
+//     formData.col &&
+//     formData.sensorIds &&
+//     formData.sensorIds.length > 0;
+
+//   const canProceed = Boolean(selectedRack || formValid);
+
+//   // handle Save & Next (form takes precedence)
+//   const handleSaveAndNext = async () => {
+//     // If the user typed in the form (form has any value), we validate/save and set it as selectedRack
+//     if (hasFormValue) {
+//       if (!formValid) {
+//         return Swal.fire({
+//           icon: "warning",
+//           title: "Missing fields",
+//           text: "Please fill required fields: name, hub, row, column and at least one sensor.",
+//         });
+//       }
+
+//       if (!selectedDataCenter?._id) {
+//         return Swal.fire({
+//           icon: "warning",
+//           title: "Missing Data Center",
+//           text: "Please select a Data Center before creating a Rack.",
+//         });
+//       }
+
+//       setLoadingFormSubmit(true);
+
+//       try {
+//         const payload = {
+//           dataCenterId: selectedDataCenter._id,
+//           ...formData,
+//           row: `r${formData.row}`,
+//           col: `c${formData.col}`,
+//         };
+
+//         const created = await dispatch(createRack(payload)).unwrap();
+//         const createdRack = created?.data ?? created;
+
+//         // set created rack as the installation selection
+//         setSelectedRack(createdRack);
+
+//         Swal.fire({
+//           icon: "success",
+//           title: "Rack created",
+//           text: `Rack "${createdRack?.name || formData.name}" added successfully.`,
+//           timer: 1200,
+//           showConfirmButton: false,
+//         });
+
+//         // reset local form (keep selectedHub)
+//         setFormData({
+//           name: "",
+//           hubId: "",
+//           sensorIds: [],
+//           row: "",
+//           col: "",
+//           conditions: DEFAULT_CONDITIONS,
+//         });
+
+//         // refresh list
+//         dispatch(fetchRacksByDataCenterId());
+
+//         // next step
+//         onNext?.();
+//         return;
+//       } catch (err) {
+//         console.error("create rack error:", err);
+//         Swal.fire({
+//           icon: "error",
+//           title: "Create failed",
+//           text: err || "Unable to create Rack.",
+//         });
+//       } finally {
+//         setLoadingFormSubmit(false);
+//       }
+//     }
+
+//     // If form empty but a rack is selected (from list) — proceed directly
+//     if (selectedRack) {
+//       onNext?.();
+//       return;
+//     }
+
+//     // fallback
+//     Swal.fire({
+//       icon: "warning",
+//       title: "Missing data",
+//       text: "Please select a rack from the list or enter the rack details.",
+//     });
+//   };
+
+//   // remove Save button; use footer instead. Keep UI identical above but remove the existing Save button.
+
+//   return (
+//     <div className="h-full p-5 AddingPage rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col justify-between bg-[#EEF3F9] border border-[#E5E7EB]">
+//       <div className="flex-1 flex flex-col justify-center">
+//         <h2 className="data-center-add-title font-semibold mb-1 text-center">Add Rack</h2>
+
+//         <p className="data-center-add-subtitle text-gray-500 mb-6 text-center">
+//           {selectedDataCenter ? `Adding Rack to "${selectedDataCenter.name}"` : "Select a Data Center to add a Rack"}
+//         </p>
+
+//         <div className="data-center-add-form space-y-4 max-w-sm mx-auto w-full">
+//           <InputField
+//             id="name"
+//             name="name"
+//             label="Rack Name"
+//             type="text"
+//             value={formData.name}
+//             onchange={onchange}
+//             placeholder="Enter rack name"
+//             disabled={!selectedDataCenter}
+//           />
+
+//           <InputField
+//             id="row"
+//             name="row"
+//             label="Row"
+//             type="number"
+//             value={formData.row}
+//             onchange={onchange}
+//             placeholder="Row number"
+//             icon={<Cpu size={20} />}
+//             disabled={!formData.hubId}
+//           />
+
+//           <InputField
+//             id="col"
+//             name="col"
+//             label="Column"
+//             type="number"
+//             value={formData.col}
+//             onchange={onchange}
+//             placeholder="Column number"
+//             icon={<Cpu size={20} />}
+//             disabled={!formData.hubId}
+//           />
+
+//           <div>
+//             <Autocomplete
+//               options={hubs}
+//               getOptionLabel={(option) => option.name || ""}
+//               value={hubs.find((h) => h._id === formData.hubId) || null}
+//               onChange={onHubChange}
+//               disabled={!selectedDataCenter}
+//               renderInput={(params) => <TextField {...params} placeholder="Search Hub" size="small" />}
+//             />
+//           </div>
+
+//           {formData.hubId && selectedHub?.sensors && (
+//             <div>
+//               <Autocomplete
+//                 multiple
+//                 options={selectedHub.sensors}
+//                 getOptionLabel={(option) => option.sensorName || ""}
+//                 value={selectedHub.sensors.filter((s) => formData.sensorIds.includes(s._id))}
+//                 onChange={(_, values) =>
+//                   setFormData((p) => ({
+//                     ...p,
+//                     sensorIds: values.map((v) => v._id),
+//                   }))
+//                 }
+//                 renderInput={(params) => <TextField {...params} placeholder="Search Sensors" size="small" />}
+//               />
+//             </div>
+//           )}
+
+//           {/* Conditions (Temperature & Humidity) */}
+//           <div>
+//             <label className="block mb-2 font-medium text-gray-700">Conditions</label>
+
+//             {/* Temperature */}
+//             <div className="flex items-center gap-2 mb-3">
+//               <span className="w-28 font-medium">Temperature</span>
+
+//               <select
+//                 value={formData.conditions[0].operator}
+//                 onChange={(e) => updateCondition(0, "operator", e.target.value)}
+//                 className="border border-gray-300 rounded-md px-2 py-1"
+//               >
+//                 <option value=">">&gt;</option>
+//                 <option value="<">&lt;</option>
+//               </select>
+
+//               <input
+//                 type="number"
+//                 value={formData.conditions[0].value}
+//                 onChange={(e) => updateCondition(0, "value", e.target.value)}
+//                 className="border border-gray-300 rounded-md px-2 py-1 w-24"
+//                 placeholder="Value"
+//               />
+//             </div>
+
+//             {/* Humidity */}
+//             <div className="flex items-center gap-2">
+//               <span className="w-28 font-medium">Humidity</span>
+
+//               <select
+//                 value={formData.conditions[1].operator}
+//                 onChange={(e) => updateCondition(1, "operator", e.target.value)}
+//                 className="border border-gray-300 rounded-md px-2 py-1"
+//               >
+//                 <option value=">">&gt;</option>
+//                 <option value="<">&lt;</option>
+//               </select>
+
+//               <input
+//                 type="number"
+//                 value={formData.conditions[1].value}
+//                 onChange={(e) => updateCondition(1, "value", e.target.value)}
+//                 className="border border-gray-300 rounded-md px-2 py-1 w-24"
+//                 placeholder="Value"
+//               />
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Footer: Back / Save & Next */}
+//       <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center">
+//         <button
+//           type="button"
+//           onClick={() => onBack?.()}
+//           className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+//         >
+//           ← Back
+//         </button>
+
+//         <button
+//           type="button"
+//           onClick={handleSaveAndNext}
+//           disabled={!canProceed || loadingFormSubmit || loading?.submit || disabled}
+//           className={`px-6 py-2 rounded-md text-white font-semibold ${
+//             canProceed && !loadingFormSubmit && !disabled ? "bg-[#1E64D9] hover:bg-[#1557C7]" : "bg-gray-400 cursor-not-allowed"
+//           }`}
+//         >
+//           {loadingFormSubmit ? "Saving..." : hasFormValue ? "Save & Next → AC Kits" : "Next → AC Kits"}
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default AddRack;
+
+
+
+
+
+
+
+
+
+// Adding the Fix of Moving Next even the Backend Failed in creating rack by any reason
+// Fixing UI and Next/Back Procedure
 import { Cpu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -724,7 +1068,7 @@ import Swal from "sweetalert2";
 import { Autocomplete, TextField } from "@mui/material";
 
 import InputField from "../../components/Inputs/InputField";
-import { createRack, fetchAllRacks } from "../../slices/rackSlice";
+import { createRack, fetchAllRacks, fetchRacksByDataCenterId } from "../../slices/rackSlice";
 import { fetchHubsByDataCenter } from "../../slices/hubSlice";
 import { useInstallation } from "../../contexts/InstallationContext";
 
@@ -831,6 +1175,8 @@ const AddRack = ({ disabled = false, onNext, onBack }) => {
         const payload = {
           dataCenterId: selectedDataCenter._id,
           ...formData,
+          row: `r${formData.row}`,
+          col: `c${formData.col}`,
         };
 
         const created = await dispatch(createRack(payload)).unwrap();
@@ -858,7 +1204,7 @@ const AddRack = ({ disabled = false, onNext, onBack }) => {
         });
 
         // refresh list
-        dispatch(fetchAllRacks());
+        dispatch(fetchRacksByDataCenterId());
 
         // next step
         onNext?.();
@@ -1042,3 +1388,4 @@ const AddRack = ({ disabled = false, onNext, onBack }) => {
 };
 
 export default AddRack;
+

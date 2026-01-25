@@ -200,8 +200,7 @@ createRoot(document.getElementById('root')).render(
                     {/* note: top-level admin path */}
                    
                     <Route path="admin/management" element={
-                       <InstallationProvider><ManagementLayout />
-                       </InstallationProvider>}>
+                       <InstallationProvider><ManagementLayout /></InstallationProvider>}>
                       <Route index element={<Dashboard />} />
                       <Route path="organization" element={<DataCenterManagement />} />
                       <Route path="installation" element={<Installation />} />

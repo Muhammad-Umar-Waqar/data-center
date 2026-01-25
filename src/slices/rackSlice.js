@@ -213,6 +213,7 @@ const rackSlice = createSlice({
   name: "rack",
   initialState: {
     racks: [],
+    selectedRack: null,
     loading: {
       fetch: false,
       submit: false,
@@ -230,6 +231,9 @@ const rackSlice = createSlice({
     setRacks(state, action) {
       state.racks = action.payload;
     },
+      clearSelectedRack(state) {
+    state.selectedRack = null;
+  },
   },
   extraReducers: (builder) => {
     builder
@@ -240,7 +244,28 @@ const rackSlice = createSlice({
       })
       .addCase(fetchAllRacks.fulfilled, (state, action) => {
         state.loading.fetch = false;
-        state.racks = Array.isArray(action.payload) ? action.payload : [];
+        // state.racks = Array.isArray(action.payload) ? action.payload : [];
+        // merge-friendly update (for fetch by dataCenter or by cluster)
+const incoming = Array.isArray(action.payload) ? action.payload : [];
+// create a map of existing racks by _id
+const existingById = new Map(state.racks.map(r => [String(r._id), r]));
+
+// produce merged array keeping stable objects when unchanged
+const merged = incoming.map(r => {
+  const id = String(r._id);
+  const prev = existingById.get(id);
+  if (!prev) return r; // new item
+  // shallow field merge - keep prev reference when nothing changed
+  // compare important fields (or you can do shallow compare of keys)
+  const changed = Object.keys(r).some(k => {
+    // treat undefined same as missing
+    return String(prev[k]) !== String(r[k]);
+  });
+  return changed ? { ...prev, ...r } : prev;
+});
+
+state.racks = merged;
+
       })
       .addCase(fetchAllRacks.rejected, (state, action) => {
         state.loading.fetch = false;
@@ -253,13 +278,19 @@ const rackSlice = createSlice({
         state.loading.fetch = true;
         state.error.fetch = null;
       })
+      // .addCase(fetchRackById.fulfilled, (state, action) => {
+      //   state.loading.fetch = false;
+      //   if (action.payload) {
+      //     // store as array for compatibility
+      //     state.racks = [action.payload];
+      //   }
+      // })
+
       .addCase(fetchRackById.fulfilled, (state, action) => {
-        state.loading.fetch = false;
-        if (action.payload) {
-          // store as array for compatibility
-          state.racks = [action.payload];
-        }
-      })
+          state.loading.fetch = false;
+          state.selectedRack = action.payload; // ✅ store separately
+        })
+
       .addCase(fetchRackById.rejected, (state, action) => {
         state.loading.fetch = false;
         state.error.fetch = action.payload || action.error?.message || "Failed to fetch rack";
@@ -319,7 +350,28 @@ const rackSlice = createSlice({
     })
     .addCase(fetchRacksByClusterId.fulfilled, (state, action) => {
       state.loading.fetch = false;
-      state.racks = Array.isArray(action.payload) ? action.payload : [];
+      // state.racks = Array.isArray(action.payload) ? action.payload : [];
+      // merge-friendly update (for fetch by dataCenter or by cluster)
+const incoming = Array.isArray(action.payload) ? action.payload : [];
+// create a map of existing racks by _id
+const existingById = new Map(state.racks.map(r => [String(r._id), r]));
+
+// produce merged array keeping stable objects when unchanged
+const merged = incoming.map(r => {
+  const id = String(r._id);
+  const prev = existingById.get(id);
+  if (!prev) return r; // new item
+  // shallow field merge - keep prev reference when nothing changed
+  // compare important fields (or you can do shallow compare of keys)
+  const changed = Object.keys(r).some(k => {
+    // treat undefined same as missing
+    return String(prev[k]) !== String(r[k]);
+  });
+  return changed ? { ...prev, ...r } : prev;
+});
+
+state.racks = merged;
+
     })
     .addCase(fetchRacksByClusterId.rejected, (state, action) => {
       state.loading.fetch = false;
@@ -334,7 +386,28 @@ const rackSlice = createSlice({
     })
     .addCase(fetchRacksByDataCenterId.fulfilled, (state, action) => {
       state.loading.fetch = false;
-      state.racks = Array.isArray(action.payload) ? action.payload : [];
+      // state.racks = Array.isArray(action.payload) ? action.payload : [];
+      // merge-friendly update (for fetch by dataCenter or by cluster)
+const incoming = Array.isArray(action.payload) ? action.payload : [];
+// create a map of existing racks by _id
+const existingById = new Map(state.racks.map(r => [String(r._id), r]));
+
+// produce merged array keeping stable objects when unchanged
+const merged = incoming.map(r => {
+  const id = String(r._id);
+  const prev = existingById.get(id);
+  if (!prev) return r; // new item
+  // shallow field merge - keep prev reference when nothing changed
+  // compare important fields (or you can do shallow compare of keys)
+  const changed = Object.keys(r).some(k => {
+    // treat undefined same as missing
+    return String(prev[k]) !== String(r[k]);
+  });
+  return changed ? { ...prev, ...r } : prev;
+});
+
+state.racks = merged;
+
     })
     .addCase(fetchRacksByDataCenterId.rejected, (state, action) => {
       state.loading.fetch = false;

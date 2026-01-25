@@ -1480,11 +1480,13 @@ const DataCenterList = () => {
         }
       >
         {isLoading && (
-          <tr>
-            <td colSpan={2} className="p-4">
+          <>
+           {/* <tr> */}
+            {/* <td colSpan={2} className="p-4"> */}
               <TableSkeleton rows={4} />
-            </td>
-          </tr>
+            {/* </td> */}
+          {/* </tr> */}
+          </>
         )}
 
         {!isLoading &&

@@ -636,7 +636,7 @@
 
 
 // src/pages/UserManagement/AddUser.jsx
-import { Mail, User } from "lucide-react";
+import { Mail, Timer, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import InputField from "../../components/Inputs/InputField";
 import { useDispatch, useSelector } from "react-redux";
@@ -644,10 +644,10 @@ import {
   fetchAllDataCenters,
   fetchDataCentersByUser,
 } from "../../slices/DataCenterSlice";
-import { createUser } from "../../slices/UserSlice";
+import { createUser, fetchUsersByCreator } from "../../slices/UserSlice";
 import "../../styles/pages/management-pages.css";
 import Swal from "sweetalert2";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useStore } from "../../contexts/storecontexts";
 
 const AddUser = () => {
@@ -659,6 +659,8 @@ const AddUser = () => {
   // const { CurrentUser } = useSelector((s) => s.User);
   const { DataCenters = [], isLoading } = useSelector(
     (s) => s.DataCenter || {} );
+
+    console.log("Add User DataCenter", DataCenters);
     
     const [isSubmitting, setIsSubmitting] = useState(false);
     
@@ -666,8 +668,20 @@ const AddUser = () => {
       name: "",
       email: "",
       dataCenters: [],
+      timer: "", // new
     });
     
+
+
+ const timerMap = {
+  "15m": 15 * 60 + "s",
+  "30m": 30 * 60 + "s",
+  "6h": 6 * 3600 + "s",
+  "12h": 12 * 3600 + "s",
+  "1d": 24 * 3600 + "s",
+};
+
+
     // console.log("><>CurrentUser<><", CurrentUser)
     // ---------------- FETCH DATACENTERS BASED ON ROLE ----------------
     useEffect(() => {
@@ -704,6 +718,14 @@ const AddUser = () => {
       });
     }
 
+    if (currentUser.role === "admin" && !formData.timer) {
+    return Swal.fire({
+      icon: "error",
+      title: "Missing Timer",
+      text: "Timer is required when creating a manager",
+    });
+  }
+
     if (formData.dataCenters.length === 0) {
       return Swal.fire({
         icon: "error",
@@ -714,17 +736,26 @@ const AddUser = () => {
 
     setIsSubmitting(true);
 
+    console.log("FormData>>", formData);
+
     try {
+      
       const payload = {
         name: formData.name,
         email: formData.email,
         dataCenters: formData.dataCenters,
       };
 
+
+       // ONLY admins send timer
+    if (currentUser.role === "admin") {
+      payload.timer = formData.timer ? timerMap[formData.timer] : null;
+    }
+
       console.log("payload_for_both_manager, admin>>", payload);
 
       await dispatch(createUser(payload)).unwrap();
-
+      dispatch(fetchUsersByCreator(currentUser._id));
       Swal.fire({
         icon: "success",
         title: "User created",
@@ -735,6 +766,7 @@ const AddUser = () => {
         name: "",
         email: "",
         dataCenters: [],
+        timer: ""
       });
     } catch (err) {
       Swal.fire({
@@ -782,6 +814,73 @@ const AddUser = () => {
             label="Email"
             icon={<Mail />}
           />
+
+
+  {currentUser?.role === "admin" && ( 
+<div>
+
+        <FormControl fullWidth>
+          <InputLabel id="timer-select-label">Timer</InputLabel>
+          <Select
+            labelId="timer-select-label"
+            id="timer-select"
+            value={formData.timer}
+            label="Timer"
+            onChange={(e) => {
+              setFormData((prev) => ({
+                ...prev,
+                timer: e.target.value, // eg: "30m", "1d"
+              }));
+            }}
+          >
+            <MenuItem value="">Select Duration</MenuItem>
+            <MenuItem value="15m">15 minutes</MenuItem>
+            <MenuItem value="30m">30 minutes</MenuItem>
+            <MenuItem value="6h">6 hours</MenuItem>
+            <MenuItem value="12h">12 hours</MenuItem>
+            <MenuItem value="1d">1 day</MenuItem>
+          </Select>
+        </FormControl>
+
+</div>
+
+)}
+
+
+{/* 
+          {currentUser?.role === "admin" && (
+          <InputField
+          type="number"
+          name="timer"
+          placeholder="Timer (seconds)"
+          onchange={onchange}
+          value={formData.timer}
+          label="Timer (seconds)"
+          icon={<Timer/>}
+          />
+          )} */}
+
+{/* 
+          {currentUser?.role === "admin" && (
+  <TextField
+    select
+    label="Timer"
+    value={formData.timer}
+    onChange={(e) => setFormData((p) => ({ ...p, timer: e.target.value }))}
+    fullWidth
+    SelectProps={{ native: true }}
+  >
+    <option value="">Select Duration</option>
+    <option value="900s">15 minutes</option>
+    <option value="1800s">30 minutes</option>
+    <option value="21600s">6 hours</option>
+    <option value="43200s">12 hours</option>
+    <option value="86400s">1 day</option>
+  </TextField>
+)} */}
+
+
+
 
           <Autocomplete
             multiple

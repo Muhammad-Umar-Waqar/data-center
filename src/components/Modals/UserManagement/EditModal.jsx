@@ -1020,6 +1020,10 @@ import {
   useMediaQuery,
   useTheme,
   Autocomplete,
+  FormControl,
+  Select,
+  InputLabel,
+  MenuItem,
 } from "@mui/material";
 import { Lock, Mail, User2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -1027,7 +1031,6 @@ import InputField from "../../Inputs/InputField";
 import PasswordField from "../../Inputs/PasswordField";
 import Swal from "sweetalert2";
 import {
-  fetchAllUsers,
   fetchUsersByCreator,
   updateUser,
 } from "../../../slices/UserSlice";
@@ -1047,6 +1050,25 @@ export default function UserEditModal({ open, handleClose, user, onSaved }) {
   const { DataCenters = [], loading } = useSelector(
     (s) => s.DataCenter || {}
   );
+
+
+  const timerDisplayMap = {
+  "900s": "15m",
+  "1800s": "30m",
+  "21600s": "6h",
+  "43200s": "12h",
+  "86400s": "1d",
+};
+
+const timerPayloadMap = {
+  "15m": "900s",
+  "30m": "1800s",
+  "6h": "21600s",
+  "12h": "43200s",
+  "1d": "86400s",
+};
+
+
 
   const [formData, setFormData] = React.useState({
     id: null,
@@ -1082,22 +1104,28 @@ export default function UserEditModal({ open, handleClose, user, onSaved }) {
       updated_password: "",
     });
 
-    if (currentUser?.role === "admin") {
-      setTimer(user.timer || "");
-    }
+    // if (currentUser?.role === "admin") {
+    //   setTimer(user.timer || "");
+    // }
+    
 
-  //
-  
-  // const assigned = Array.isArray(user.dataCenters)
-  // ? user.dataCenters.map((dc) => {
-  //     if (typeof dc === "string") return { _id: dc, name: "" }; // fallback if only id
-  //     return { _id: dc.dataCenterId, name: dc.name || "" };
-  //   })
-  // : [];
+    if (currentUser?.role === "admin") {
+  const raw = user.timer || "";
+  setTimer(timerDisplayMap[raw] || "");
+  }
+
+
+    // const assigned = Array.isArray(user.dataCenters)
+    // ? user.dataCenters.map((dc) => {
+    //     if (typeof dc === "string") return { _id: dc, name: "" }; // fallback if only id
+    //     return { _id: dc.dataCenterId, name: dc.name || "" };
+    //   })
+    // : [];
   
 
   const assigned = Array.isArray(user.dataCenters)
   ? user.dataCenters.map((dc) => {
+    console.log("DCCC>>", dc);
       if (typeof dc === "string") return { _id: dc, name: "" }; // just ID
       // dc.dataCenterId might be object or string
       const id = typeof dc.dataCenterId === "string" ? dc.dataCenterId : dc.dataCenterId._id;
@@ -1116,7 +1144,7 @@ export default function UserEditModal({ open, handleClose, user, onSaved }) {
   //   })
   // : [];
 
-
+    console.log("assigned>>", assigned)
     setSelectedDataCenters(assigned);
   }, [open, user, currentUser]);
 
@@ -1168,7 +1196,11 @@ export default function UserEditModal({ open, handleClose, user, onSaved }) {
           payload.email = formData.updated_email;
         if (formData.updated_password)
           payload.password = formData.updated_password;
-        if (timer && !timerError) payload.timer = timer;
+        // if (timer && !timerError) payload.timer = timer;
+
+        if (timer && !timerError) {
+          payload.timer = timerPayloadMap[timer] || null; // 30m → "1800s"
+        }
 
         await dispatch(
           updateUser({ id: formData.id, payload })
@@ -1186,10 +1218,37 @@ export default function UserEditModal({ open, handleClose, user, onSaved }) {
     }
   };
 
-  const options = DataCenters.map((d) => ({
+  console.log("Datacenters>>", DataCenters)
+
+  // const options = DataCenters.map((d) => ({
+  //   _id: d.dataCenterId,
+  //   name: d.name,
+  // }));
+
+
+  let options = [];
+
+if (currentUser?.role === "admin") {
+  // Admin → Response already clean [{ _id, name }]
+  options = DataCenters.map(d => ({
     _id: d._id,
-    name: d.name,
+    name: d.name
   }));
+}
+
+if (currentUser?.role === "manager") {
+  // Manager → Response joined [{ dataCenterId:{_id,name} }]
+  options = DataCenters.map(d => ({
+    _id: d.dataCenterId?._id,
+    name: d.dataCenterId?.name
+  })).filter(d => d._id);
+}
+
+
+
+  console.log("Datacenters>>", DataCenters)
+  console.log("Options>>", options);
+
 
   return (
     <Modal open={!!open} onClose={closeModal}>
@@ -1254,15 +1313,47 @@ export default function UserEditModal({ open, handleClose, user, onSaved }) {
             )}
           />
 
+
           {currentUser?.role === "admin" && (
-            <TextField
-              label="Timer (1–60s/m)"
-              value={timer}
-              onChange={handleTimerChange}
-              error={!!timerError}
-              helperText={timerError}
-            />
+            <FormControl fullWidth className="mt-4">
+              <InputLabel id="timer-select-label">Timer</InputLabel>
+              <Select
+                labelId="timer-select-label"
+                id="timer-select"
+                value={timer}
+                label="Timer"
+                onChange={(e) => setTimer(e.target.value)}
+              >
+                <MenuItem value="">Select Duration</MenuItem>
+                <MenuItem value="15m">15 minutes</MenuItem>
+                <MenuItem value="30m">30 minutes</MenuItem>
+                <MenuItem value="6h">6 hours</MenuItem>
+                <MenuItem value="12h">12 hours</MenuItem>
+                <MenuItem value="1d">1 day</MenuItem>
+              </Select>
+            </FormControl>
           )}
+
+
+          {/* {currentUser?.role === "admin" && (
+            <FormControl fullWidth className="mt-4">
+            <InputLabel id="timer-select-label">Timer</InputLabel>
+            <Select
+              labelId="timer-select-label"
+              id="timer-select"
+              value={timer}
+              label="Timer"
+              onChange={(e) => setTimer(e.target.value)}
+            >
+              <MenuItem value="">Select Duration</MenuItem>
+              <MenuItem value="15m">15 minutes</MenuItem>
+              <MenuItem value="30m">30 minutes</MenuItem>
+              <MenuItem value="6h">6 hours</MenuItem>
+              <MenuItem value="12h">12 hours</MenuItem>
+              <MenuItem value="1d">1 day</MenuItem>
+            </Select>
+          </FormControl>
+          )} */}
         </Stack>
 
         <Stack direction="row" spacing={2} justifyContent="flex-end" mt={3}>

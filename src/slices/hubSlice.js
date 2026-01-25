@@ -611,7 +611,8 @@ const hubSlice = createSlice({
       .addCase(updateHub.fulfilled, (state, action) => {
         state.loading.update = false;
         state.hubs = state.hubs.map((hub) =>
-          hub._id === action.payload.id ? action.payload : hub
+          // hub._id === action.payload.id ? action.payload : hub
+          hub._id === (action.payload._id || action.payload.id)
         );
       })
       .addCase(updateHub.rejected, (state, action) => {

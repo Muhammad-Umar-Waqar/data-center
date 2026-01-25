@@ -303,6 +303,19 @@ const rackClusterSlice = createSlice({
         s.clusters = [];
         s.error.fetch = a.payload;
       })
+      .addCase(fetchRackClustersByAcKit.pending, s=>{
+        s.loading.fetch=true
+        s.error.fetch=null
+      })
+      .addCase(fetchRackClustersByAcKit.fulfilled,(s,a)=>{
+        s.loading.fetch=false
+        s.clusters=a.payload
+      })
+      .addCase(fetchRackClustersByAcKit.rejected,(s,a)=>{
+        s.loading.fetch=false
+        s.error.fetch=a.payload
+        s.clusters=[]
+      })
 
   },
 });

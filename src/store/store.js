@@ -13,6 +13,7 @@ import hubReducer from '../slices/hubSlice';
 import rackReducer from '../slices/rackSlice'
 import acKitReducer from '../slices/ackitSlice'
 import rackClusterReducer from '../slices/rackClusterSlice'
+import uiReducer from '../slices/uiSlice'
 
 
 const persistConfig = {
@@ -32,6 +33,7 @@ const rootReducer = combineReducers({
   rack: rackReducer,
   ackit: acKitReducer,
   rackCluster: rackClusterReducer,
+  ui: uiReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

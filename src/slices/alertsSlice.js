@@ -219,3 +219,238 @@ const alertsSlice = createSlice({
 
 export const { deviceDataReceived, clearOrgAlerts, upsertVenue } = alertsSlice.actions;
 export default alertsSlice.reducer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// New Alert 
+
+// src/slices/alertSlice.js
+// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+// const BASE = import.meta.env.VITE_BACKEND_API || "http://localhost:5050";
+
+// /*
+//   Thunks
+//   - NOTE: endpoints assumed:
+//     GET /alert/datacenter/:dataCenterId
+//     GET /alert/rack-cluster/:rackClusterId
+// */
+
+// export const fetchAlertsByDataCenter = createAsyncThunk(
+//   "alerts/fetchByDataCenter",
+//   async (dataCenterId, { rejectWithValue }) => {
+//     try {
+//       const token = localStorage.getItem("token");
+//       if (!token) return rejectWithValue("No authentication token found");
+
+//       const res = await fetch(`${BASE}/alert/datacenter/${dataCenterId}`, {
+//         method: "GET",
+//         credentials: "include",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok) return rejectWithValue(data.message || "Failed to fetch alerts");
+
+//       // backend returns: { dataCenterId, totalRacks, racks: [...] }
+//       return {
+//         dataCenterId: data.dataCenterId ?? dataCenterId,
+//         totalRacks: data.totalRacks ?? (Array.isArray(data.racks) ? data.racks.length : 0),
+//         racks: Array.isArray(data.racks) ? data.racks : [],
+//       };
+//     } catch (err) {
+//       return rejectWithValue(err.message || "Network error");
+//     }
+//   }
+// );
+
+// export const fetchAlertsByRackCluster = createAsyncThunk(
+//   "alerts/fetchByRackCluster",
+//   async (rackClusterId, { rejectWithValue }) => {
+//     try {
+//       const token = localStorage.getItem("token");
+//       if (!token) return rejectWithValue("No authentication token found");
+
+//       const res = await fetch(`${BASE}/alert/rack-cluster/${rackClusterId}`, {
+//         method: "GET",
+//         credentials: "include",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok) return rejectWithValue(data.message || "Failed to fetch cluster alerts");
+
+//       // backend returns: { rackClusterId, rackClusterName, ackitName, dataCenterId, totalRacks, racks }
+//       return {
+//         rackClusterId: data.rackClusterId ?? rackClusterId,
+//         clusterName: data.rackClusterName ?? null,
+//         ackitName: data.ackitName ?? null,
+//         dataCenterId: data.dataCenterId ?? null,
+//         totalRacks: data.totalRacks ?? (Array.isArray(data.racks) ? data.racks.length : 0),
+//         racks: Array.isArray(data.racks) ? data.racks : [],
+//       };
+//     } catch (err) {
+//       return rejectWithValue(err.message || "Network error");
+//     }
+//   }
+// );
+
+// /* Slice */
+// const initialState = {
+//   byDataCenter: {
+//     // [dataCenterId]: { loading, error, totalRacks, racks: [...] }
+//   },
+//   byRackCluster: {
+//     // [clusterId]: { loading, error, totalRacks, racks: [...], clusterName, ackitName, dataCenterId }
+//   },
+// };
+
+// const alertsSlice = createSlice({
+//   name: "alerts",
+//   initialState,
+//   reducers: {
+//     // clear cached alerts for a data center
+//     clearDataCenterAlerts(state, action) {
+//       const dc = action.payload;
+//       if (dc && state.byDataCenter[dc]) delete state.byDataCenter[dc];
+//     },
+//     // clear cached alerts for a cluster
+//     clearRackClusterAlerts(state, action) {
+//       const id = action.payload;
+//       if (id && state.byRackCluster[id]) delete state.byRackCluster[id];
+//     },
+//     /**
+//      * applySensorUpdate:
+//      * payload = { target: 'dataCenter'|'cluster', id: <id>, rackId, sensorUpdate: { sensorName, temperature, humidity, updatedAt } }
+//      *
+//      * This updates the matching sensor entry inside stored racks if present.
+//      */
+//     applySensorUpdate(state, action) {
+//       try {
+//         const { target, id, rackId, sensorUpdate } = action.payload || {};
+//         if (!target || !id || !rackId || !sensorUpdate) return;
+
+//         const container = target === "cluster" ? state.byRackCluster[id] : state.byDataCenter[id];
+//         if (!container || !Array.isArray(container.racks)) return;
+
+//         const rackIndex = container.racks.findIndex((r) => String(r.rackId ?? r._id) === String(rackId));
+//         if (rackIndex === -1) return;
+
+//         const rack = container.racks[rackIndex];
+//         // Ensure sensors array exists
+//         rack.sensors = Array.isArray(rack.sensors) ? rack.sensors : [];
+
+//         // try to find sensor by name
+//         const si = rack.sensors.findIndex(s => s.sensorName === sensorUpdate.sensorName);
+//         if (si === -1) {
+//           // insert new sensor reading at top
+//           rack.sensors.unshift(sensorUpdate);
+//         } else {
+//           // merge
+//           rack.sensors[si] = { ...rack.sensors[si], ...sensorUpdate };
+//         }
+
+//         // update totals and dominant temp/humi if needed
+//         rack.totalSensors = rack.sensors.length;
+//         // recalc dominant sensor temp/humi
+//         let dominant = null;
+//         rack.sensors.forEach(s => {
+//           if (!dominant || (s.temperature ?? -Infinity) > (dominant.temperature ?? -Infinity)) dominant = s;
+//         });
+//         rack.tempV = dominant?.temperature ?? null;
+//         rack.humiV = dominant?.humidity ?? null;
+
+//         container.racks[rackIndex] = rack;
+//       } catch (e) {
+//         // safety: don't throw
+//         // console.error("applySensorUpdate error", e);
+//       }
+//     },
+//   },
+//   extraReducers: (builder) => {
+//     // fetch by datacenter
+//     builder
+//       .addCase(fetchAlertsByDataCenter.pending, (s, a) => {
+//         const dc = a.meta.arg;
+//         if (!s.byDataCenter[dc]) s.byDataCenter[dc] = { loading: true, error: null, totalRacks: 0, racks: [] };
+//         else {
+//           s.byDataCenter[dc].loading = true;
+//           s.byDataCenter[dc].error = null;
+//         }
+//       })
+//       .addCase(fetchAlertsByDataCenter.fulfilled, (s, a) => {
+//         const payload = a.payload || {};
+//         const dc = payload.dataCenterId;
+//         s.byDataCenter[dc] = {
+//           loading: false,
+//           error: null,
+//           totalRacks: payload.totalRacks ?? 0,
+//           racks: payload.racks ?? [],
+//         };
+//       })
+//       .addCase(fetchAlertsByDataCenter.rejected, (s, a) => {
+//         const dc = a.meta.arg;
+//         if (!s.byDataCenter[dc]) s.byDataCenter[dc] = { loading: false, error: a.payload || a.error?.message || "Failed to fetch alerts", totalRacks: 0, racks: [] };
+//         else {
+//           s.byDataCenter[dc].loading = false;
+//           s.byDataCenter[dc].error = a.payload || a.error?.message || "Failed to fetch alerts";
+//         }
+//       });
+
+//     // fetch by rack cluster
+//     builder
+//       .addCase(fetchAlertsByRackCluster.pending, (s, a) => {
+//         const id = a.meta.arg;
+//         if (!s.byRackCluster[id]) s.byRackCluster[id] = { loading: true, error: null, totalRacks: 0, racks: [], clusterName: null, ackitName: null, dataCenterId: null };
+//         else {
+//           s.byRackCluster[id].loading = true;
+//           s.byRackCluster[id].error = null;
+//         }
+//       })
+//       .addCase(fetchAlertsByRackCluster.fulfilled, (s, a) => {
+//         const payload = a.payload || {};
+//         const id = payload.rackClusterId;
+//         s.byRackCluster[id] = {
+//           loading: false,
+//           error: null,
+//           totalRacks: payload.totalRacks ?? 0,
+//           racks: payload.racks ?? [],
+//           clusterName: payload.clusterName ?? null,
+//           ackitName: payload.ackitName ?? null,
+//           dataCenterId: payload.dataCenterId ?? null,
+//         };
+//       })
+//       .addCase(fetchAlertsByRackCluster.rejected, (s, a) => {
+//         const id = a.meta.arg;
+//         if (!s.byRackCluster[id]) s.byRackCluster[id] = { loading: false, error: a.payload || a.error?.message || "Failed to fetch cluster alerts", totalRacks: 0, racks: [], clusterName: null, ackitName: null, dataCenterId: null };
+//         else {
+//           s.byRackCluster[id].loading = false;
+//           s.byRackCluster[id].error = a.payload || a.error?.message || "Failed to fetch cluster alerts";
+//         }
+//       });
+//   },
+// });
+
+// export const { clearDataCenterAlerts, clearRackClusterAlerts, applySensorUpdate } = alertsSlice.actions;
+// export default alertsSlice.reducer;

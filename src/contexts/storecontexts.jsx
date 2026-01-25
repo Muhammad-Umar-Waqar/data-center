@@ -174,7 +174,24 @@ export const StoreProvider = ({ children }) => {
   };
 
   const getUser = async () => verifySession();
-  const hasRole = (role) => user ? user.role === role || (Array.isArray(user.roles) && user.roles.includes(role)) : false;
+  // const hasRole = (role) => user ? user.role === role || (Array.isArray(user.roles) && user.roles.includes(role)) : false;
+
+  // inside storecontexts.js, replace hasRole:
+const hasRole = (role) => {
+  if (!user) return false;
+  if (typeof role === "string") {
+    if (user.role === role) return true;
+    if (Array.isArray(user.roles) && user.roles.includes(role)) return true;
+    return false;
+  }
+  // if an array passed
+  if (Array.isArray(role)) {
+    return role.some((r) => user.role === r || (Array.isArray(user.roles) && user.roles.includes(r)));
+  }
+  return false;
+};
+
+
 
   // ---------- Poll user isActive ----------
   useEffect(() => {
