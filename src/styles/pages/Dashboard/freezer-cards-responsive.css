@@ -7,34 +7,22 @@
 
   padding: var(--container-padding);
   background-color: #07518d1d;
-  
+
   /* background-color: #07518d17; */
   border-radius: 20px;
 
   /* show exactly two rows, then vertical scroll */
   /* max-height: calc((var(--card-height) * 2) + var(--grid-gap) + (var(--container-padding) * 2)); */
-   /* 👇 IMPORTANT */
-  min-height: calc(
-    (var(--card-height) * 2) +
-    var(--grid-gap) +
-    (var(--container-padding) * 2)
-  );
+  /* 👇 IMPORTANT */
+  min-height: calc((var(--card-height) * 2) + var(--grid-gap) + (var(--container-padding) * 2));
 
-  max-height: calc(
-    (var(--card-height) * 2) +
-    var(--grid-gap) +
-    (var(--container-padding) * 2)
-  );
+  max-height: calc((var(--card-height) * 2) + var(--grid-gap) + (var(--container-padding) * 2));
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 .freezer-empty-state {
-  height: calc(
-    (var(--card-height) * 2) +
-    var(--grid-gap) +
-    (var(--container-padding) * 2)
-  );
+  height: calc((var(--card-height) * 2) + var(--grid-gap) + (var(--container-padding) * 2));
 
   display: flex;
   align-items: center;
@@ -119,7 +107,7 @@
 
 /* Battery alert (GREEN) */
 .freezer-card-container.alert-battery {
-  background-color: #50B47D;
+  background-color: #5095B4;
   color: white;
 }
 
@@ -135,8 +123,8 @@
   font-weight: 400;
 }
 
-.res-text{
-    font-size: clamp(0.6rem, 0.5vw, 2rem);
+.res-text {
+  font-size: clamp(0.6rem, 0.5vw, 2rem);
 }
 
 
@@ -168,7 +156,7 @@
   justify-content: space-between;
   flex: 1;
   min-height: 0;
-  padding: 0.75rem 0.75rem 0 0.75rem ;
+  padding: 0.75rem 0.75rem 0 0.75rem;
 }
 
 
@@ -189,12 +177,13 @@
 
 
 .ambient-pill {
+  display: flex;
   border-radius: 9999px;
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
-  
+
 }
 
 
@@ -251,7 +240,7 @@
     --card-height: 13rem;
     --grid-gap: 1rem;
     --container-padding: 1rem;
-      -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch;
   }
 
   .freezer-cards-grid {
@@ -259,17 +248,17 @@
   }
 
   .freezer-icon {
-  width: 3rem;
-  height: 3rem;
-  margin-top: 0.5rem;
-  margin-right: 0.75rem;
-  flex-shrink: 0;
-}
+    width: 3rem;
+    height: 3rem;
+    margin-top: 0.5rem;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+  }
 
-.ambient-res-label {
-  font-size: clamp(0.85rem, 1vw, 2rem); 
-  font-weight: 400;
-}
+  .ambient-res-label {
+    font-size: clamp(0.85rem, 1vw, 2rem);
+    font-weight: 400;
+  }
 
 }
 
@@ -305,6 +294,7 @@
   .freezer-cards-grid {
     grid-template-columns: repeat(4, minmax(260px, 1fr));
   }
+
   .freezer-cards-container {
     --card-height: 12rem;
     --grid-gap: 1.25rem;
@@ -324,11 +314,12 @@
   }
 }
 
-@media (min-width: 768px){
+@media (min-width: 768px) {
   .freezer-label {
     font-size: clamp(0.7rem, 0.9vw, 1rem);
     /* font-weight: 100; */
   }
+
   .ambient-label {
     font-size: clamp(0.7rem, 0.9vw, 1rem);
     /* font-weight: 100; */
@@ -417,13 +408,17 @@
 
 
 @media (max-width: 550px) {
+
   /* Hide scrollbar but allow scrolling */
   .hide-scrollbar {
-    -ms-overflow-style: none;  /* IE & Edge */
-    scrollbar-width: none;     /* Firefox */
+    -ms-overflow-style: none;
+    /* IE & Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
 
   .hide-scrollbar::-webkit-scrollbar {
-    display: none;             /* Chrome, Safari, Opera */
+    display: none;
+    /* Chrome, Safari, Opera */
   }
 }

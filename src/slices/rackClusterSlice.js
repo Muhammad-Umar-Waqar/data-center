@@ -223,6 +223,62 @@ export const fetchRackClustersByDataCenter = createAsyncThunk(
   }
 );
 
+/* ========== NEW: FETCH MEANS FOR ALL CLUSTERS IN A DATA CENTER ========== */
+export const fetchRackClusterMeansByDc = createAsyncThunk(
+  "rackCluster/fetchMeansByDc",
+  async (dataCenterId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return rejectWithValue("No authentication token found");
+
+      const res = await fetch(`${BASE}/rack-cluster/all-means/${dataCenterId}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok) return rejectWithValue(data.message || "Failed to fetch cluster means");
+
+      // controller returns { dataCenterId, clusters: [...] }
+      return data.clusters || [];
+    } catch (err) {
+      return rejectWithValue(err.message || "Network error");
+    }
+  }
+);
+
+/* ========== NEW: FETCH MEAN FOR A SINGLE CLUSTER (evaluation result) ========== */
+export const fetchRackClusterMean = createAsyncThunk(
+  "rackCluster/fetchMeanByCluster",
+  async (clusterId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return rejectWithValue("No authentication token found");
+
+      const res = await fetch(`${BASE}/rack-cluster/mean/${clusterId}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok) return rejectWithValue(data.message || "Failed to fetch cluster mean");
+
+      // controller returns an object with cluster, meanTemp, meanHumi, desiredAc, actualAc, message ...
+      return data || null;
+    } catch (err) {
+      return rejectWithValue(err.message || "Network error");
+    }
+  }
+);
+
 
 /* ===================== SLICE ===================== */
 
@@ -230,17 +286,23 @@ const rackClusterSlice = createSlice({
   name: "rackCluster",
   initialState: {
     clusters: [],
+    meansList: [],       // holds clusters means for a data center (all-means)
+    meanDetail: null,    // holds a single cluster mean/evaluation (mean/:clusterId)
     loading: {
       fetch: false,
       submit: false,
       update: false,
       delete: false,
+      means: false,
+      mean: false,
     },
     error: {
       fetch: null,
       submit: null,
       update: null,
       delete: null,
+      means: null,
+      mean: null,
     },
   },
   reducers: {},
@@ -275,11 +337,26 @@ const rackClusterSlice = createSlice({
       })
 
       // UPDATE
+      // .addCase(updateRackCluster.fulfilled, (s, a) => {
+      //   const updated = a.payload;
+      //   s.clusters = s.clusters.map((c) =>
+      //     String(c._id) === String(updated._id) ? updated : c
+      //   );
+      // })
+      .addCase(updateRackCluster.pending, (s) => {
+      s.loading.update = true;
+      s.error.update = null;
+      })
       .addCase(updateRackCluster.fulfilled, (s, a) => {
+        s.loading.update = false;
         const updated = a.payload;
         s.clusters = s.clusters.map((c) =>
           String(c._id) === String(updated._id) ? updated : c
         );
+      })
+      .addCase(updateRackCluster.rejected, (s, a) => {
+        s.loading.update = false;
+        s.error.update = a.payload;
       })
 
       // DELETE
@@ -316,6 +393,34 @@ const rackClusterSlice = createSlice({
         s.error.fetch=a.payload
         s.clusters=[]
       })
+      /* ========== NEW: fetchRackClusterMeansByDc ========== */
+      .addCase(fetchRackClusterMeansByDc.pending, (s) => {
+        s.loading.means = true;
+        s.error.means = null;
+      })
+      .addCase(fetchRackClusterMeansByDc.fulfilled, (s, a) => {
+        s.loading.means = false;
+        s.meansList = a.payload; // array of { id, name, meanTemp, meanHumi, ackitStatus }
+      })
+      .addCase(fetchRackClusterMeansByDc.rejected, (s, a) => {
+        s.loading.means = false;
+        s.meansList = [];
+        s.error.means = a.payload;
+      })
+      /* ========== NEW: fetchRackClusterMean (single cluster evaluation) ========== */
+      .addCase(fetchRackClusterMean.pending, (s) => {
+        s.loading.mean = true;
+        s.error.mean = null;
+      })
+      .addCase(fetchRackClusterMean.fulfilled, (s, a) => {
+        s.loading.mean = false;
+        s.meanDetail = a.payload; // object returned by your controller
+      })
+      .addCase(fetchRackClusterMean.rejected, (s, a) => {
+        s.loading.mean = false;
+        s.meanDetail = null;
+        s.error.mean = a.payload;
+      });
 
   },
 });

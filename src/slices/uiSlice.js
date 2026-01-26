@@ -27,6 +27,7 @@ const uiSlice = createSlice({
       // switching DC clears cluster selection
       state.selectedRackClusterId = null;
       state.selectedRackId = null;
+      state.autoSelectedRackForContext.cluster = {};
     },
     setSelectedRackClusterId(state, action) {
       state.selectedRackClusterId = action.payload;
@@ -39,7 +40,10 @@ const uiSlice = createSlice({
     markContextFetched(state, action) {
       const { kind, id } = action.payload; // kind: 'dc'|'cluster'
       if (kind && id) state.contextHasFetched[kind][id] = true;
-      state.isInitialContextLoad = false;
+      // state.isInitialContextLoad = false;
+        if (state.isInitialContextLoad) {
+        state.isInitialContextLoad = false;
+      }
     },
     markAutoSelectedRack(state, action) {
       const { kind, id } = action.payload; // kind: 'dc'|'cluster'
@@ -49,6 +53,13 @@ const uiSlice = createSlice({
       state.selectedDataCenterId = null;
       state.selectedRackClusterId = null;
       state.selectedRackId = null;
+    },
+    resetUI: (state) => {
+      state.selectedDataCenterId = null;
+      state.selectedRackClusterId = null;
+      state.selectedRackId = null;
+      state.contextHasFetched = { dc: {}, cluster: {} };
+      state.autoSelectedRackForContext = { dc: {}, cluster: {} };
     },
   },
 });
@@ -60,6 +71,7 @@ export const {
   markContextFetched,
   markAutoSelectedRack,
   clearSelection,
+  resetUI
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

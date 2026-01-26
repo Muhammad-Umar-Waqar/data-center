@@ -352,7 +352,7 @@ export default function VenueDetailsPanel({
   onClose = undefined,
    lastUpdateTime=null
 }) {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const { user } = useStore();
   const orgId = organizationId || user?.organization || null;
    const isDesktop = useMediaQuery("(min-width:768px)");
@@ -456,7 +456,7 @@ const handleDownload = () => {
       {/* A. Venue Info Section */}
       <div className="flex justify-between items-center border-b border-[#E5E7EB]/40 ">
         <div>
-          <p className="text-sm text-[#64748B] font-medium">Device ID </p>
+          <p className="text-sm text-[#64748B] font-medium">Device ID</p>
           <h2 className="text-sm text-[#1E293B] font-bold">{deviceId || <Skeleton variant="text" width={70} />}</h2>
         </div>
       <button
@@ -513,7 +513,7 @@ const handleDownload = () => {
         </div>
       </div> */}
 
-      <div className="grid sm:grid-cols-3 place-items-center  gap-3 md:gap-5 ">
+      <div className="grid grid-cols-3 place-items-center gap-3 md:gap-5 ">
         {/* <div> */}
         {/* </div> */}
         <div className="flex items-end justify-center">
@@ -586,5 +586,6 @@ const handleDownload = () => {
       />
 
   </div>
+
   );
 }

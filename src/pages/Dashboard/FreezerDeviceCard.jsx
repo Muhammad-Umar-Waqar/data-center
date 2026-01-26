@@ -335,6 +335,7 @@
 import { Tooltip } from "@mui/material";
 import "../../styles/global/fonts.css";
 import "../../styles/pages/Dashboard/freezer-cards-responsive.css";
+import { LucideThermometerSun } from "lucide-react";
 
 export default function FreezerDeviceCard({
   refrigeratorAlert,
@@ -379,6 +380,19 @@ export default function FreezerDeviceCard({
   const handleCardClick = () => {
     if (onCardSelect) onCardSelect();
   };
+
+
+  const showThermometer =
+  hasRefrigeratorAlert || !hasBatteryAlert;
+
+const showHumidity =
+  hasBatteryAlert && !hasRefrigeratorAlert;
+
+const thermometerColor = hasRefrigeratorAlert
+  ? "text-red-400"
+  : "text-blue-400";
+
+
 
   return (
     // <div
@@ -435,7 +449,7 @@ export default function FreezerDeviceCard({
             </div>
 
             {/* Ambient Temperature Pill */}
-            <div className={`ambient-pill bg-white/50 border ${isSelected
+            {/* <div className={`ambient-pill bg-white/50 border ${isSelected
                 ? "border-white/30"
                 : "border-gray-300"
               }`}>
@@ -446,11 +460,60 @@ export default function FreezerDeviceCard({
               </span>
               °C
               </p>
-            </div>
+            </div> */}
+            {/* <div className={`flex rounded-2xl gap-2 p-1
+            bg-white/50 border ${hasRefrigeratorAlert
+                ? "border-white/30"
+                : "border-gray-300"
+              }`}>
+                {
+                  <>
+                  <LucideThermometerSun className={`${hasRefrigeratorAlert ? "text-red-400" : "text-blue-400"}`} />  
+                  <img src="/humidity-alert.svg" alt="Humidity Alert" className="w-auto h-[1.5rem]" />
+                  </>
+                }
+                <p className={`ambient-res-label sm:ambient-label  ${isSelected ? 'text-white' : 'text-gray-600' 
+                }`} >
+               {
+               hasAnyAlert ? "Detected" : "Normal"
+               } 
+              </p>
+            </div> */}
+
+            <div
+  className={`flex items-center gap-2 p-1 rounded-2xl
+    bg-white/50 border
+    ${hasAnyAlert ? "border-white/30" : "border-gray-300"}
+  `}
+>
+  {/* Thermometer Icon */}
+  {showThermometer && (
+    <LucideThermometerSun className={thermometerColor} />
+  )}
+
+  {/* Humidity Icon */}
+  {showHumidity && (
+    <img
+      src="/humidity-alert.svg"
+      alt="Humidity Alert"
+      className="w-auto h-[1.5rem]"
+    />
+  )}
+
+  <p
+    className={`ambient-res-label sm:ambient-label
+      ${isSelected ? "text-white" : "text-gray-600"}
+    `}
+  >
+    {hasAnyAlert ? "Detected" : "Normal"}
+  </p>
+</div>
+
           </div>
 
           {/* Middle Section: Freezer Temperature */}
-          <div className={`flex items-center h-full ${(hasAnyAlert || isSelected) &&  "white-icon"}`}>
+          <div className="flex items-center justify-between h-full">
+           <div className={`flex items-center h-full ${(hasAnyAlert || isSelected) &&  "white-icon"}`}>
             <img
               src="/freezer-icon.png"
               alt="Freezer"
@@ -469,6 +532,28 @@ export default function FreezerDeviceCard({
               </span>
             </div>
           </div>
+           {/* <div className={`flex items-center h-full ${(hasAnyAlert || isSelected) &&  "white-icon"}`}> */}
+           <div className={`flex items-center h-full `}>
+            <img
+              src="/card-humidity-icon.svg"
+              alt="Freezer"
+              className="freezer-icon"
+            />
+
+            {/* Freezer Label and Temperature - Right of Icon */}
+            <div className="freezer-temp-info">
+              <span className={`freezer-label font-semi-bold ${isSelected ? 'text-white' : 'text-[#1E293B]'} ${hasAnyAlert && "text-white"}`}>
+                Humidity
+              </span>
+
+              {/* Temperature Display - Below Freezer Text */}
+              <span className={`freezer-temp-value ${isSelected ? 'text-white/80' : 'text-[#2F2E2E]/86'} responsive-value ${hasAnyAlert && "text-white/80"}`}>
+                {displayAmbientTemp}<span className="font-extralight">°C</span>
+              </span>
+            </div>
+          </div>
+          </div>
+         
 
        
        

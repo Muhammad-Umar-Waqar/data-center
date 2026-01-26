@@ -1150,90 +1150,166 @@ const AddRack = ({ disabled = false, onNext, onBack }) => {
   const canProceed = Boolean(selectedRack || formValid);
 
   // handle Save & Next (form takes precedence)
+  // const handleSaveAndNext = async () => {
+  //   // If the user typed in the form (form has any value), we validate/save and set it as selectedRack
+  //   if (hasFormValue) {
+  //     if (!formValid) {
+  //       return Swal.fire({
+  //         icon: "warning",
+  //         title: "Missing fields",
+  //         text: "Please fill required fields: name, hub, row, column and at least one sensor.",
+  //       });
+  //     }
+
+  //     if (!selectedDataCenter?._id) {
+  //       return Swal.fire({
+  //         icon: "warning",
+  //         title: "Missing Data Center",
+  //         text: "Please select a Data Center before creating a Rack.",
+  //       });
+  //     }
+
+  //     setLoadingFormSubmit(true);
+
+  //     try {
+  //       const payload = {
+  //         dataCenterId: selectedDataCenter._id,
+  //         ...formData,
+  //         row: `r${formData.row}`,
+  //         col: `c${formData.col}`,
+  //       };
+
+  //       const created = await dispatch(createRack(payload)).unwrap();
+  //       const createdRack = created?.data ?? created;
+
+  //       console.log("createdR", createRack)
+  //       // set created rack as the installation selection
+  //       setSelectedRack(createdRack);
+
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Rack created",
+  //         text: `Rack "${createdRack?.name || formData.name}" added successfully.`,
+  //         timer: 1200,
+  //         showConfirmButton: false,
+  //       });
+
+  //       // reset local form (keep selectedHub)
+  //       setFormData({
+  //         name: "",
+  //         hubId: "",
+  //         sensorIds: [],
+  //         row: "",
+  //         col: "",
+  //         conditions: DEFAULT_CONDITIONS,
+  //       });
+
+  //       // refresh list
+  //       dispatch(fetchRacksByDataCenterId());
+
+  //       // next step
+  //       onNext?.();
+  //       return;
+  //     } catch (err) {
+  //       console.error("create rack error:", err);
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Create failed",
+  //         text: err || "Unable to create Rack.",
+  //       });
+  //     } finally {
+  //       setLoadingFormSubmit(false);
+  //     }
+  //   }
+
+  //   // If form empty but a rack is selected (from list) — proceed directly
+  //   if (selectedRack) {
+  //     onNext?.();
+  //     return;
+  //   }
+
+  //   // fallback
+  //   Swal.fire({
+  //     icon: "warning",
+  //     title: "Missing data",
+  //     text: "Please select a rack from the list or enter the rack details.",
+  //   });
+  // };
+
+
   const handleSaveAndNext = async () => {
-    // If the user typed in the form (form has any value), we validate/save and set it as selectedRack
-    if (hasFormValue) {
-      if (!formValid) {
-        return Swal.fire({
-          icon: "warning",
-          title: "Missing fields",
-          text: "Please fill required fields: name, hub, row, column and at least one sensor.",
-        });
-      }
+  // CASE 1: Existing rack selected → go next
+  if (!hasFormValue && selectedRack) {
+    onNext?.();
+    return;
+  }
 
-      if (!selectedDataCenter?._id) {
-        return Swal.fire({
-          icon: "warning",
-          title: "Missing Data Center",
-          text: "Please select a Data Center before creating a Rack.",
-        });
-      }
-
-      setLoadingFormSubmit(true);
-
-      try {
-        const payload = {
-          dataCenterId: selectedDataCenter._id,
-          ...formData,
-          row: `r${formData.row}`,
-          col: `c${formData.col}`,
-        };
-
-        const created = await dispatch(createRack(payload)).unwrap();
-        const createdRack = created?.data ?? created;
-
-        // set created rack as the installation selection
-        setSelectedRack(createdRack);
-
-        Swal.fire({
-          icon: "success",
-          title: "Rack created",
-          text: `Rack "${createdRack?.name || formData.name}" added successfully.`,
-          timer: 1200,
-          showConfirmButton: false,
-        });
-
-        // reset local form (keep selectedHub)
-        setFormData({
-          name: "",
-          hubId: "",
-          sensorIds: [],
-          row: "",
-          col: "",
-          conditions: DEFAULT_CONDITIONS,
-        });
-
-        // refresh list
-        dispatch(fetchRacksByDataCenterId());
-
-        // next step
-        onNext?.();
-        return;
-      } catch (err) {
-        console.error("create rack error:", err);
-        Swal.fire({
-          icon: "error",
-          title: "Create failed",
-          text: err || "Unable to create Rack.",
-        });
-      } finally {
-        setLoadingFormSubmit(false);
-      }
+  // CASE 2: User is trying to create a rack
+  if (hasFormValue) {
+    if (!formValid) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Missing fields",
+        text: "Please fill required fields: name, hub, row, column and at least one sensor.",
+      });
     }
 
-    // If form empty but a rack is selected (from list) — proceed directly
-    if (selectedRack) {
-      onNext?.();
+    if (!selectedDataCenter?._id) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Missing Data Center",
+        text: "Please select a Data Center before creating a Rack.",
+      });
+    }
+
+    setLoadingFormSubmit(true);
+
+    try {
+      const payload = {
+        dataCenterId: selectedDataCenter._id,
+        ...formData,
+        row: `r${formData.row}`,
+        col: `c${formData.col}`,
+      };
+
+      const createdRack = await dispatch(createRack(payload)).unwrap();
+
+      // ✅ ONLY here we allow next
+      setSelectedRack(createdRack);
+
+      Swal.fire({
+        icon: "success",
+        title: "Rack created",
+        text: `Rack "${createdRack.name}" added successfully.`,
+        timer: 1200,
+        showConfirmButton: false,
+      });
+
+      dispatch(fetchRacksByDataCenterId(selectedDataCenter._id));
+      onNext?.(); // ✅ success only
       return;
-    }
 
-    // fallback
-    Swal.fire({
-      icon: "warning",
-      title: "Missing data",
-      text: "Please select a rack from the list or enter the rack details.",
-    });
-  };
+    } catch (err) {
+      // ❌ HARD STOP
+      Swal.fire({
+        icon: "error",
+        title: "Create failed",
+        text: err,
+      });
+      return; // ⛔ prevents step change
+    } finally {
+      setLoadingFormSubmit(false);
+    }
+  }
+
+  // fallback
+  Swal.fire({
+    icon: "warning",
+    title: "Missing data",
+    text: "Please select a rack from the list or enter the rack details.",
+  });
+};
+
 
   // remove Save button; use footer instead. Keep UI identical above but remove the existing Save button.
 

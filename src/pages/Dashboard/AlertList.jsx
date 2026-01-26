@@ -2,7 +2,6 @@ import { useState } from "react";
 
 export default function AlertList({ title = "Alert", iconSrc = null, items = [] }) {
   const [expandedItems, setExpandedItems] = useState(new Set());
-
   const toggleExpand = (id) => {
     const newExpandedItems = new Set(expandedItems);
     if (newExpandedItems.has(id)) {
@@ -12,7 +11,8 @@ export default function AlertList({ title = "Alert", iconSrc = null, items = [] 
     }
     setExpandedItems(newExpandedItems);
   };
-
+  
+  console.log("expandedItems>", items)
   return (
     
     <div className="w-full ">

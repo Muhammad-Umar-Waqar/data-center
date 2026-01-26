@@ -9,7 +9,7 @@ const ManagementLayout = () => {
       <Sidebar />
 
       {/* Main area with light grey-blue background */}
-      <main className="z-10 flex-1 overflow-auto md:pr-6 bg-white">
+      <main className="z-10 flex-1 overflow-auto  bg-white">
         {/* Main content area */}
         <div className="MainContentArea h-full">
           <Outlet />

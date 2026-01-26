@@ -234,6 +234,11 @@ const rackSlice = createSlice({
       clearSelectedRack(state) {
     state.selectedRack = null;
   },
+  clearRacks(state) {
+  state.racks = [];
+  state.selectedRack = null;
+}
+
   },
   extraReducers: (builder) => {
     builder
@@ -303,6 +308,7 @@ state.racks = merged;
       })
       .addCase(createRack.fulfilled, (state, action) => {
         state.loading.submit = false;
+        state.error.submit = null;
         state.racks = [action.payload, ...state.racks];
       })
       .addCase(createRack.rejected, (state, action) => {
@@ -421,5 +427,5 @@ state.racks = merged;
   },
 });
 
-export const { setRacks } = rackSlice.actions;
+export const { setRacks, clearRacks, clearSelectedRack } = rackSlice.actions;
 export default rackSlice.reducer;

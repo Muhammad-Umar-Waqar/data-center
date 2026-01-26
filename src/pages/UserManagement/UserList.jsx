@@ -1293,7 +1293,7 @@ const handleEditOpen = (user) => {
   const renderListMarkup = () => (
     <div className="ListPage user-list-container  bg-white  rounded-xl lg:rounded-r-none lg:rounded-l-xl shadow-sm w-full h-full border border-[#E5E7EB]">
       {isDesktop ? (
-        <h1 className="organization-list-title font-semibold text-gray-800 mb-4">User Management</h1>
+        <h1 className="organization-list-title font-semibold text-gray-800 mb-4 p-2">User Management</h1>
       ) : (
         <>
           <div className="flex justify-end">
@@ -1318,7 +1318,7 @@ const handleEditOpen = (user) => {
       ) : displayUsers.length === 0 ? (
         <div className="p-6 text-center text-gray-600">No users found.</div>
       ) : (
-        <div className="user-table-scroll h-[77vh] sm:h-[60vh] overflow-y-auto md:pr-1">
+        <div className="user-table-scroll h-[80vh] sm:h-[77vh] overflow-y-auto md:pr-1">
           <table className="w-full table-auto text-left">
             <thead>
               <tr className="bg-gray-100">

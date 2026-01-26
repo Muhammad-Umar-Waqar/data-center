@@ -936,7 +936,7 @@ const handleRowClick = (rack, e) => {
             <th className="py-2 px-4 font-bold text-gray-800">Rack</th>
             <th className="py-2 px-4 text-center">Hub</th>
             <th className="py-2 px-4 text-center">Sensors</th>
-            <th className="py-2 px-4 w-[120px] text-center">Actions</th>
+            <th className="py-2 px-4 text-center">Actions</th>
           </>
         }
       >
