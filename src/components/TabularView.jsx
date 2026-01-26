@@ -58,14 +58,14 @@ export default function TabularView({
 
   if (!rowList.length || !colList.length) {
     return (
-      <div className="tabular-empty text-sm text-gray-500 p-3">
-        No layout available
+      <div className="tabular-empty text-sm text-gray-500 p-3 h-full flex items-center justify-center">
+        No Devices available
       </div>
     );
   }
 
   return (
-    <div className="tabular-container">
+    <div className=" tabular-container h-full">
       {/* Column headers */}
       <div className="tabular-header">
         <div className="corner-label" /> {/* empty corner */}
@@ -77,7 +77,7 @@ export default function TabularView({
       </div>
 
       {/* Rows */}
-      <div className="tabular-body">
+      <div className="tabular-body h-full">
         {rowList.map((rNum) => (
           <div className="tabular-row" key={`row-${rNum}`}>
             <div className="tabular-row-label">{`R${rNum}`}</div>

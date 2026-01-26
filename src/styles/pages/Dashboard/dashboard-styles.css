@@ -1,3 +1,16 @@
+.rack-view-container {
+  /* SAME math as freezer-cards-container */
+  --card-height: 10.5rem;
+  --grid-gap: 1rem;
+  --container-padding: 1rem;
+
+  min-height: calc((var(--card-height) * 2) + var(--grid-gap) + (var(--container-padding) * 2));
+  max-height: calc((var(--card-height) * 2) + var(--grid-gap) + (var(--container-padding) * 2));
+  /* background: #07518d1d; */
+  overflow: hidden; /* important */
+  position: relative;
+}
+
 @media (min-width: 420px) and (max-width: 768px) {
   .dashboard-right-panel {
     width: 450 !important;
@@ -583,11 +596,12 @@
 
 /* Tabular view styles */
 .tabular-container {
-  background: #f3f7f9;
+  /* background: #f3f7f9; */
   border-radius: 12px;
   padding: 12px;
   width: 100%;
   box-sizing: border-box;
+  
 }
 
 /* header row */

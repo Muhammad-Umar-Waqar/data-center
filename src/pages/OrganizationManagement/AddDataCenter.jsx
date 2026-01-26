@@ -245,64 +245,126 @@ const AddDataCenter = ({ onNext, onBack }) => {
   // enable Next if either there's a selected list item OR user typed a name
   const canProceed = !!selectedDataCenter || hasFormValue;
 
+  // const handleSaveAndNext = async () => {
+  //   // PRIORITY: if form has a value, save it and use it (override any selected item)
+  //   if (hasFormValue) {
+  //     const name = (formData.data_center_name || "").trim();
+  //     if (!name) {
+  //       return Swal.fire({
+  //         icon: "warning",
+  //         title: "Missing field",
+  //         text: "Data Center name is required.",
+  //       });
+  //     }
+
+  //     setLoadingFormSubmit(true);
+  //     try {
+  //       const created = await dispatch(createDataCenter(name)).unwrap();
+  //       const createdDC = created?.data ?? created;
+
+  //       // set created as selected in Installation context
+  //       setSelectedDataCenter(createdDC);
+
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Data Center created",
+  //         text: `Data Center "${createdDC?.name || name}" added successfully.`,
+  //         timer: 1400,
+  //         showConfirmButton: false,
+  //       });
+
+  //       setFormData({ data_center_name: "" });
+  //       dispatch(fetchAllDataCenters());
+
+  //       onNext?.();
+  //       return;
+  //     } catch (err) {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Create failed",
+  //         text: err || "Unable to create Data Center.",
+  //       });
+  //       console.error(err);
+  //     } finally {
+  //       setLoadingFormSubmit(false);
+  //     }
+  //   }
+
+  //   // If form empty but something selected in the list -> just proceed
+  //   if (selectedDataCenter) {
+  //     onNext?.();
+  //     return;
+  //   }
+
+  //   // Fallback (shouldn't happen because canProceed blocks button)
+  //   Swal.fire({
+  //     icon: "warning",
+  //     title: "Missing data",
+  //     text: "Please select a Data Center from the list or enter a name.",
+  //   });
+  // };
+
+
   const handleSaveAndNext = async () => {
-    // PRIORITY: if form has a value, save it and use it (override any selected item)
-    if (hasFormValue) {
-      const name = (formData.data_center_name || "").trim();
-      if (!name) {
-        return Swal.fire({
-          icon: "warning",
-          title: "Missing field",
-          text: "Data Center name is required.",
-        });
-      }
-
-      setLoadingFormSubmit(true);
-      try {
-        const created = await dispatch(createDataCenter(name)).unwrap();
-        const createdDC = created?.data ?? created;
-
-        // set created as selected in Installation context
-        setSelectedDataCenter(createdDC);
-
-        Swal.fire({
-          icon: "success",
-          title: "Data Center created",
-          text: `Data Center "${createdDC?.name || name}" added successfully.`,
-          timer: 1400,
-          showConfirmButton: false,
-        });
-
-        setFormData({ data_center_name: "" });
-        dispatch(fetchAllDataCenters());
-
-        onNext?.();
-        return;
-      } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Create failed",
-          text: err || "Unable to create Data Center.",
-        });
-        console.error(err);
-      } finally {
-        setLoadingFormSubmit(false);
-      }
+  // If user typed a name, always try to create it
+  if (hasFormValue) {
+    const name = formData.data_center_name.trim();
+    if (!name) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Missing field",
+        text: "Data Center name is required.",
+      });
     }
 
-    // If form empty but something selected in the list -> just proceed
-    if (selectedDataCenter) {
+    setLoadingFormSubmit(true);
+    try {
+      const created = await dispatch(createDataCenter(name)).unwrap();
+      const createdDC = created?.data ?? created;
+
+      setSelectedDataCenter(createdDC);
+
+      Swal.fire({
+        icon: "success",
+        title: "Data Center created",
+        text: `Data Center "${createdDC?.name || name}" added successfully.`,
+        timer: 1400,
+        showConfirmButton: false,
+      });
+
+      setFormData({ data_center_name: "" });
+      dispatch(fetchAllDataCenters());
+
       onNext?.();
       return;
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Create failed",
+        text: err || "Unable to create Data Center.",
+      });
+      console.error(err);
+      return;
+    } finally {
+      setLoadingFormSubmit(false);
     }
+  }
 
-    // Fallback (shouldn't happen because canProceed blocks button)
-    Swal.fire({
-      icon: "warning",
-      title: "Missing data",
-      text: "Please select a Data Center from the list or enter a name.",
-    });
-  };
+  // If no form value, but a Data Center is already selected, just proceed
+  if (selectedDataCenter) {
+    onNext?.();
+    return;
+  }
+
+  // Fallback: nothing typed, nothing selected
+  Swal.fire({
+    icon: "warning",
+    title: "Missing data",
+    text: "Please select a Data Center from the list or enter a name.",
+  });
+};
+
+
 
   return (
     <div className="h-full  p-5 rounded-xl lg:rounded-l-none lg:rounded-r-xl shadow-sm w-full flex flex-col bg-[#EEF3F9] border border-[#E5E7EB]">

@@ -585,11 +585,15 @@ const thermometerColor = hasRefrigeratorAlert
 
     {hasBatteryAlert && (
       <img
-      src="/low-battery-alert-icon.svg"
+      src="/card-humidity-icon.svg"
       alt="Battery Alert"
       className="alert-icon"
       />
     )}
+
+
+
+
     </div>
 </div>
 )}

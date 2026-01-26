@@ -595,14 +595,15 @@ const MobDashMenu = ({
             return (
               <Tooltip key={it.key} title={it.label} placement="top">
                 <span>
-                  <NavLink
-                    to={it.link}
-                    className={`h-[45px] w-[45px] flex items-center justify-center sidebar-icon ${
-                      isActive ? "active" : ""
-                    }`}
-                  >
-                    <Icon src={it.icon} alt={it.label} size={20} />
-                  </NavLink>
+           <NavLink
+                to={it.link}
+                end
+                className={({ isActive }) =>
+                  `h-[45px] w-[45px] flex items-center justify-center sidebar-icon ${isActive ? "active" : ""}`
+                }
+              >
+                <Icon src={it.icon} alt={it.label} size={20} />
+              </NavLink>
                 </span>
               </Tooltip>
             )
@@ -677,17 +678,13 @@ const SidebarRebuilt = () => {
                 return (
                   <Tooltip key={item.key} title={item.label} placement="top">
                     <span>
-                      <NavLink
-                        to={item.link}
-                        className={`sidebar-icon ${
-                          active ? "active" : ""
-                        }`}
-                      >
-                        <Icon
-                          src={item.blueIcon}
-                          alt={item.label}
-                        />
-                      </NavLink>
+                 <NavLink
+                    to={item.link}
+                    end
+                    className={({ isActive }) => `sidebar-icon ${isActive ? "active" : ""}`}
+                  >
+                    <Icon src={item.blueIcon} alt={item.label} />
+                  </NavLink>
                     </span>
                   </Tooltip>
                 )

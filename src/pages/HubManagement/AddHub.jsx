@@ -514,7 +514,7 @@ export default function AddHub({ onNext, onBack, disabled = false }) {
         />
 
         {/* Optional Save-only button */}
-        <button
+        {/* <button
           type="button"
           onClick={handleSubmit}
           disabled={!selectedDataCenter || loadingFormSubmit || loading?.submit}
@@ -525,7 +525,7 @@ export default function AddHub({ onNext, onBack, disabled = false }) {
           }`}
         >
           {loadingFormSubmit ? "Saving..." : "Save"}
-        </button>
+        </button> */}
       </div>
     </div>
 
